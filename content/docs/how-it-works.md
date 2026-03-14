@@ -38,6 +38,22 @@ Parent tasks can delegate to child tasks with attenuated scope. Macaroon-based t
 
 This implements the Delegation Capability Token architecture from DeepMind's "Intelligent AI Delegation" framework (arXiv:2602.11865).
 
+## RBAC
+
+Fine-grained per-agent access control spans SSH, HTTP, and MCP federation. Template inheritance, wildcard support, and agent-level overrides. Discovery tools (`list_targets`, `list_services`, `list_remotes`) filter results based on agent permissions. Dashboard access is tiered: none, viewer, operator, admin.
+
+## Resource URIs
+
+Seven resource URIs enable agent self-discovery without tool calls:
+
+- `ephyr://overview` — system summary
+- `ephyr://targets` — available SSH targets
+- `ephyr://services` — configured HTTP proxy services
+- `ephyr://roles` — available roles
+- `ephyr://status` — broker status
+- `ephyr://tools` — tool catalog
+- `ephyr://remotes` — federated MCP servers
+
 ## Policy
 
 Access control is defined in a YAML policy file:

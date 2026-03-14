@@ -1,4 +1,4 @@
 ---
 title: "Ephyr"
-description: "Ephemeral infrastructure access for AI agents"
+description: "Cryptographically bounded agent authority with centralized audit"
 ---

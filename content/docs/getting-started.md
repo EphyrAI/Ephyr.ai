@@ -13,8 +13,8 @@ weight: 30
 ## Build
 
 ```bash
-git clone https://github.com/ben-spanswick/Clauth.git
-cd Clauth
+git clone https://github.com/EphyrAI/Ephyr.git
+cd Ephyr
 make build
 # Output: bin/ephyr-broker  bin/ephyr-signer  bin/ephyr
 ```
@@ -111,4 +111,4 @@ ephyr remotes              # List federated MCP servers
 
 - [How It Works](/docs/how-it-works/) — understand the access model
 - [Architecture](/docs/architecture/) — security model and process isolation
-- [GitHub](https://github.com/ben-spanswick/Clauth) — source code and issues
+- [GitHub](https://github.com/EphyrAI/Ephyr) — source code and issues
