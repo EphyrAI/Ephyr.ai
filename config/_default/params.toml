@@ -1,5 +1,5 @@
-colorScheme = "congo"
-defaultAppearance = "dark"
+colorScheme = "ephyr"
+defaultAppearance = "light"
 autoSwitchAppearance = false
 
 enableSearch = false
