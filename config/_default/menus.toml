@@ -1,4 +1,9 @@
 [[main]]
+  name = "Whitepaper"
+  pageRef = "whitepaper"
+  weight = 5
+
+[[main]]
   name = "How It Works"
   pageRef = "docs/how-it-works"
   weight = 10

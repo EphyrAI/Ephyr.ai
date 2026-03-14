@@ -11,20 +11,50 @@
         <a href="{{ "docs/getting-started/" | relURL }}" class="btn-primary">Get Started</a>
         <a href="https://github.com/ben-spanswick/Clauth" class="btn-secondary">View Source</a>
       </div>
-      <div class="hero-stats">
-        <span>~16,000 lines of Go</span>
-        <span class="sep">&middot;</span>
-        <span>4 dependencies</span>
-        <span class="sep">&middot;</span>
-        <span>Zero external databases</span>
-        <span class="sep">&middot;</span>
-        <span>Apache 2.0</span>
+    </div>
+  </section>
+
+  <!-- Whitepaper -->
+  <section class="section" id="whitepaper">
+    <div class="section-inner">
+      <div class="whitepaper-showcase">
+        <a href="{{ "whitepaper/" | relURL }}" class="whitepaper-card">
+          <div class="wp-doc">
+            <div class="wp-doc-inner">
+              <div class="wp-doc-bar"></div>
+              <div class="wp-doc-title">Ephyr Architecture</div>
+              <div class="wp-doc-subtitle">Ephemeral infrastructure access for AI agents</div>
+              <div class="wp-doc-meta">Ben Spanswick &middot; March 2026</div>
+              <div class="wp-doc-lines">
+                <div class="wp-line wp-line-full"></div>
+                <div class="wp-line wp-line-full"></div>
+                <div class="wp-line wp-line-short"></div>
+                <div class="wp-line wp-line-gap"></div>
+                <div class="wp-line wp-line-heading"></div>
+                <div class="wp-line wp-line-full"></div>
+                <div class="wp-line wp-line-full"></div>
+                <div class="wp-line wp-line-med"></div>
+                <div class="wp-line wp-line-gap"></div>
+                <div class="wp-line wp-line-heading"></div>
+                <div class="wp-line wp-line-full"></div>
+                <div class="wp-line wp-line-full"></div>
+                <div class="wp-line wp-line-short"></div>
+              </div>
+            </div>
+          </div>
+          <div class="wp-info">
+            <span class="wp-badge">Architecture Spec</span>
+            <h2>Read the whitepaper</h2>
+            <p>Three capability tiers. Macaroon-based delegation with cryptographic attenuation. Proof-of-possession holder binding. How Ephyr implements DeepMind's Delegation Capability Token architecture.</p>
+            <span class="wp-read-link">Read now &rarr;</span>
+          </div>
+        </a>
       </div>
     </div>
   </section>
 
   <!-- Problem -->
-  <section class="section" id="problem">
+  <section class="section section-alt" id="problem">
     <div class="section-inner">
       <h2>The Problem</h2>
       <div class="problem-grid">
@@ -44,11 +74,11 @@
     </div>
   </section>
 
-  <!-- Solution -->
-  <section class="section section-alt" id="solution">
+  <!-- Architecture -->
+  <section class="section" id="solution">
     <div class="section-inner">
       <h2>What Ephyr Does</h2>
-      <p class="section-lead">Ephyr sits between AI agents and your infrastructure. Agents connect to one MCP endpoint. Ephyr handles credentials, policy, and proxying.</p>
+      <p class="section-lead">One MCP endpoint. Three access paths. Zero standing credentials.</p>
       <div class="arch-diagram">
         <pre><code>┌──────────────┐                ┌──────────────────┐                ┌──────────────────┐
 │              │   MCP :8554    │                  │   Unix socket  │                  │
@@ -72,7 +102,7 @@
   </section>
 
   <!-- How it works -->
-  <section class="section" id="how">
+  <section class="section section-alt" id="how">
     <div class="section-inner">
       <h2>How It Works</h2>
       <div class="features-grid">
@@ -105,7 +135,7 @@
   </section>
 
   <!-- Tiers -->
-  <section class="section section-alt" id="tiers">
+  <section class="section" id="tiers">
     <div class="section-inner">
       <h2>Capability Tiers</h2>
       <p class="section-lead">Ephyr evolves through three tiers. Each is a strict superset of the previous.</p>
@@ -120,8 +150,8 @@
           <div class="tier-label">Shipping</div>
           <h3>Ephyr Delegation</h3>
           <p class="tier-version">v0.2b</p>
-          <p>Macaroon-based task tokens, broker-mediated delegation, effective envelope reducer (set intersection + minimum), cross-agent delegation, lineage-aware audit.</p>
-          <p class="tier-note">Implements the delegation architecture from DeepMind's "Intelligent AI Delegation" (arXiv:2602.11865).</p>
+          <p>Macaroon-based task tokens, broker-mediated delegation, effective envelope reducer, cross-agent delegation, lineage-aware audit.</p>
+          <p class="tier-note">Implements DeepMind's "Intelligent AI Delegation" architecture (arXiv:2602.11865).</p>
         </div>
         <div class="tier">
           <div class="tier-label">Next</div>
@@ -133,11 +163,10 @@
     </div>
   </section>
 
-  <!-- Performance -->
-  <section class="section" id="performance">
+  <!-- Performance + Stats -->
+  <section class="section section-alt" id="performance">
     <div class="section-inner">
-      <h2>Performance</h2>
-      <p class="section-lead">Benchmarked on a Debian 12 LXC with 1 vCPU and 512MB RAM.</p>
+      <h2>By the Numbers</h2>
       <div class="perf-grid">
         <div class="perf-item">
           <span class="perf-value">&lt;1ms</span>
@@ -152,48 +181,27 @@
           <span class="perf-label">Macaroon operations</span>
         </div>
         <div class="perf-item">
-          <span class="perf-value">850ms</span>
-          <span class="perf-label">SSH exec (cold, new cert)</span>
+          <span class="perf-value">15</span>
+          <span class="perf-label">MCP tools</span>
+        </div>
+        <div class="perf-item">
+          <span class="perf-value">4</span>
+          <span class="perf-label">Dependencies</span>
+        </div>
+        <div class="perf-item">
+          <span class="perf-value">~16k</span>
+          <span class="perf-label">Lines of Go</span>
+        </div>
+        <div class="perf-item">
+          <span class="perf-value">0</span>
+          <span class="perf-label">External databases</span>
+        </div>
+        <div class="perf-item">
+          <span class="perf-value">5min</span>
+          <span class="perf-label">Default cert TTL</span>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- MCP Tools -->
-  <section class="section section-alt" id="tools">
-    <div class="section-inner">
-      <h2>15 MCP Tools</h2>
-      <p class="section-lead">Everything through a single MCP endpoint.</p>
-      <div class="tools-columns">
-        <div class="tools-group">
-          <h4>Infrastructure</h4>
-          <ul>
-            <li><code>exec</code> &mdash; Run commands via ephemeral SSH cert</li>
-            <li><code>session_create</code> / <code>session_close</code> &mdash; Persistent sessions</li>
-            <li><code>list_targets</code> / <code>list_sessions</code> / <code>list_certs</code></li>
-          </ul>
-        </div>
-        <div class="tools-group">
-          <h4>HTTP Proxy</h4>
-          <ul>
-            <li><code>http_request</code> &mdash; Authenticated proxy (credentials auto-injected)</li>
-            <li><code>list_services</code></li>
-          </ul>
-        </div>
-        <div class="tools-group">
-          <h4>Task Identity</h4>
-          <ul>
-            <li><code>task_create</code> / <code>task_delegate</code> &mdash; Scoped tasks with delegation</li>
-            <li><code>task_info</code> / <code>task_list</code> / <code>task_revoke</code></li>
-          </ul>
-        </div>
-        <div class="tools-group">
-          <h4>Federation</h4>
-          <ul>
-            <li><code>list_remotes</code> &mdash; Aggregated remote MCP servers</li>
-          </ul>
-        </div>
-      </div>
+      <p class="perf-footnote">Benchmarked on Debian 12 LXC, 1 vCPU, 512MB RAM.</p>
     </div>
   </section>
 
@@ -201,11 +209,13 @@
   <section class="section" id="cta">
     <div class="section-inner cta-section">
       <h2>Built for homelabs and internal teams.</h2>
-      <p>Ephyr is designed for environments where you trust the operator but need to control what agents can do. Not a SaaS platform. Not a managed service. Your infrastructure, your policy, your audit trail.</p>
+      <p>Your infrastructure, your policy, your audit trail. Not a SaaS platform. Not a managed service. Ephyr runs where you run it.</p>
       <div class="hero-cta">
         <a href="{{ "docs/getting-started/" | relURL }}" class="btn-primary">Get Started</a>
+        <a href="{{ "whitepaper/" | relURL }}" class="btn-secondary">Read the Whitepaper</a>
         <a href="https://github.com/ben-spanswick/Clauth" class="btn-secondary">GitHub</a>
       </div>
+      <p class="cta-license">Apache 2.0 &middot; Go 1.24+ &middot; Linux</p>
     </div>
   </section>
 
