@@ -1,0 +1,212 @@
+<div class="ephyr-landing">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <p class="pronunciation">pronounced "eh&#8209;feer"</p>
+      <h1>Ephyr</h1>
+      <p class="tagline">Ephemeral infrastructure access for AI agents.</p>
+      <p class="subtitle">A broker that gives AI agents auditable, policy-controlled access to infrastructure&mdash;without standing credentials.</p>
+      <div class="hero-cta">
+        <a href="{{ "docs/getting-started/" | relURL }}" class="btn-primary">Get Started</a>
+        <a href="https://github.com/ben-spanswick/Clauth" class="btn-secondary">View Source</a>
+      </div>
+      <div class="hero-stats">
+        <span>~16,000 lines of Go</span>
+        <span class="sep">&middot;</span>
+        <span>4 dependencies</span>
+        <span class="sep">&middot;</span>
+        <span>Zero external databases</span>
+        <span class="sep">&middot;</span>
+        <span>Apache 2.0</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem -->
+  <section class="section" id="problem">
+    <div class="section-inner">
+      <h2>The Problem</h2>
+      <div class="problem-grid">
+        <div class="problem-card">
+          <h3>Credentials don't expire</h3>
+          <p>SSH keys and API tokens persist long after the task that needed them. When an agent session ends, the access remains.</p>
+        </div>
+        <div class="problem-card">
+          <h3>Scope is all-or-nothing</h3>
+          <p>An agent that needs to read one log file gets the same key that can wipe the server. There's no per-task scoping.</p>
+        </div>
+        <div class="problem-card">
+          <h3>Delegation is uncharted</h3>
+          <p>When agents delegate to sub-agents, the permission model breaks entirely. MCP has no policy layer for permission propagation across delegation chains.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Solution -->
+  <section class="section section-alt" id="solution">
+    <div class="section-inner">
+      <h2>What Ephyr Does</h2>
+      <p class="section-lead">Ephyr sits between AI agents and your infrastructure. Agents connect to one MCP endpoint. Ephyr handles credentials, policy, and proxying.</p>
+      <div class="arch-diagram">
+        <pre><code>┌──────────────┐                ┌──────────────────┐                ┌──────────────────┐
+│              │   MCP :8554    │                  │   Unix socket  │                  │
+│  AI Agent    ├───────────────▶│   ephyr-broker   ├───────────────▶│   ephyr-signer   │
+│              │                │                  │                │                  │
+│  Claude      │                │  Policy engine   │                │  CA key holder   │
+│  Cursor      │                │  Task identity   │                │  Signs certs     │
+│  Any MCP     │                │  HTTP proxy      │                │  Never on network│
+│  client      │                │  MCP federation  │                │  Systemd sandbox │
+│              │                │  Audit logger    │                │                  │
+└──────────────┘                └────────┬─────────┘                └──────────────────┘
+                                         │
+                          ┌──────────────┼──────────────┐
+                          ▼              ▼              ▼
+                    ┌──────────┐  ┌──────────┐  ┌──────────┐
+                    │ SSH hosts│  │ HTTP APIs│  │ MCP      │
+                    │          │  │          │  │ servers  │
+                    └──────────┘  └──────────┘  └──────────┘</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section" id="how">
+    <div class="section-inner">
+      <h2>How It Works</h2>
+      <div class="features-grid">
+        <div class="feature">
+          <h3>Brokered Access</h3>
+          <p>One MCP connection replaces N different auth mechanisms. The broker injects credentials per-request. Agents never see long-lived secrets.</p>
+        </div>
+        <div class="feature">
+          <h3>Ephemeral Certificates</h3>
+          <p>SSH certificates default to 5-minute TTL. Issued per-request by an isolated CA signer process. No key distribution, no revocation lists.</p>
+        </div>
+        <div class="feature">
+          <h3>Task-Scoped Identity</h3>
+          <p>Every action correlates to a task with a ULID. Capability envelopes define what each task can touch. Epoch watermarking enables instant revocation without blocklists.</p>
+        </div>
+        <div class="feature">
+          <h3>Delegation with Attenuation</h3>
+          <p>Parent tasks delegate to children with reduced scope. Macaroon-based tokens with HMAC-chained caveats make restriction removal cryptographically impossible. Capabilities only shrink.</p>
+        </div>
+        <div class="feature">
+          <h3>Policy as Code</h3>
+          <p>Declarative YAML defines who can access what, with what role, for how long. Hot-reload without restart. Per-agent RBAC across all access paths.</p>
+        </div>
+        <div class="feature">
+          <h3>Full Audit Trail</h3>
+          <p>Every certificate, command, HTTP proxy request, delegation, and denied action. Structured JSON with task lineage correlation, ready for your SIEM.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tiers -->
+  <section class="section section-alt" id="tiers">
+    <div class="section-inner">
+      <h2>Capability Tiers</h2>
+      <p class="section-lead">Ephyr evolves through three tiers. Each is a strict superset of the previous.</p>
+      <div class="tiers-grid">
+        <div class="tier">
+          <div class="tier-label">Shipping</div>
+          <h3>Ephyr Core</h3>
+          <p class="tier-version">v0.1 &ndash; v0.2a</p>
+          <p>Brokered access, ephemeral credentials, task-scoped identity, declarative policy, epoch watermark revocation, full audit trail.</p>
+        </div>
+        <div class="tier">
+          <div class="tier-label">Shipping</div>
+          <h3>Ephyr Delegation</h3>
+          <p class="tier-version">v0.2b</p>
+          <p>Macaroon-based task tokens, broker-mediated delegation, effective envelope reducer (set intersection + minimum), cross-agent delegation, lineage-aware audit.</p>
+          <p class="tier-note">Implements the delegation architecture from DeepMind's "Intelligent AI Delegation" (arXiv:2602.11865).</p>
+        </div>
+        <div class="tier">
+          <div class="tier-label">Next</div>
+          <h3>Ephyr Bind</h3>
+          <p class="tier-version">v0.3</p>
+          <p>Holder-bound tokens with DPoP-style proof-of-possession. Ephemeral keypair per task. Leaked macaroons are useless without the key.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Performance -->
+  <section class="section" id="performance">
+    <div class="section-inner">
+      <h2>Performance</h2>
+      <p class="section-lead">Benchmarked on a Debian 12 LXC with 1 vCPU and 512MB RAM.</p>
+      <div class="perf-grid">
+        <div class="perf-item">
+          <span class="perf-value">&lt;1ms</span>
+          <span class="perf-label">Warm auth (cached)</span>
+        </div>
+        <div class="perf-item">
+          <span class="perf-value">14ms</span>
+          <span class="perf-label">SSH exec (persistent session)</span>
+        </div>
+        <div class="perf-item">
+          <span class="perf-value">~32&micro;s</span>
+          <span class="perf-label">Macaroon operations</span>
+        </div>
+        <div class="perf-item">
+          <span class="perf-value">850ms</span>
+          <span class="perf-label">SSH exec (cold, new cert)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MCP Tools -->
+  <section class="section section-alt" id="tools">
+    <div class="section-inner">
+      <h2>15 MCP Tools</h2>
+      <p class="section-lead">Everything through a single MCP endpoint.</p>
+      <div class="tools-columns">
+        <div class="tools-group">
+          <h4>Infrastructure</h4>
+          <ul>
+            <li><code>exec</code> &mdash; Run commands via ephemeral SSH cert</li>
+            <li><code>session_create</code> / <code>session_close</code> &mdash; Persistent sessions</li>
+            <li><code>list_targets</code> / <code>list_sessions</code> / <code>list_certs</code></li>
+          </ul>
+        </div>
+        <div class="tools-group">
+          <h4>HTTP Proxy</h4>
+          <ul>
+            <li><code>http_request</code> &mdash; Authenticated proxy (credentials auto-injected)</li>
+            <li><code>list_services</code></li>
+          </ul>
+        </div>
+        <div class="tools-group">
+          <h4>Task Identity</h4>
+          <ul>
+            <li><code>task_create</code> / <code>task_delegate</code> &mdash; Scoped tasks with delegation</li>
+            <li><code>task_info</code> / <code>task_list</code> / <code>task_revoke</code></li>
+          </ul>
+        </div>
+        <div class="tools-group">
+          <h4>Federation</h4>
+          <ul>
+            <li><code>list_remotes</code> &mdash; Aggregated remote MCP servers</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" id="cta">
+    <div class="section-inner cta-section">
+      <h2>Built for homelabs and internal teams.</h2>
+      <p>Ephyr is designed for environments where you trust the operator but need to control what agents can do. Not a SaaS platform. Not a managed service. Your infrastructure, your policy, your audit trail.</p>
+      <div class="hero-cta">
+        <a href="{{ "docs/getting-started/" | relURL }}" class="btn-primary">Get Started</a>
+        <a href="https://github.com/ben-spanswick/Clauth" class="btn-secondary">GitHub</a>
+      </div>
+    </div>
+  </section>
+
+</div>

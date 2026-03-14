@@ -1,0 +1,393 @@
+/* Ephyr Landing Page Styles */
+
+:root {
+  --ephyr-accent: #60a5fa;
+  --ephyr-accent-dim: #3b82f6;
+  --ephyr-bg: #0a0a0f;
+  --ephyr-bg-alt: #0f0f18;
+  --ephyr-surface: #161625;
+  --ephyr-border: #1e1e32;
+  --ephyr-text: #e4e4ed;
+  --ephyr-text-dim: #8888a0;
+  --ephyr-code-bg: #12121e;
+}
+
+body {
+  background: var(--ephyr-bg) !important;
+}
+
+.ephyr-landing {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Hero */
+.hero {
+  padding: 8rem 1.5rem 6rem;
+  text-align: center;
+  max-width: 52rem;
+  margin: 0 auto;
+}
+
+.hero-content h1 {
+  font-size: 4rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
+
+.pronunciation {
+  font-size: 0.9rem;
+  color: var(--ephyr-text-dim);
+  font-style: italic;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.05em;
+}
+
+.tagline {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--ephyr-accent);
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: var(--ephyr-text-dim);
+  max-width: 40rem;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+
+.btn-primary {
+  background: var(--ephyr-accent-dim);
+  color: #fff !important;
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--ephyr-accent);
+  text-decoration: none;
+}
+
+.btn-secondary {
+  border: 1px solid var(--ephyr-border);
+  color: var(--ephyr-text) !important;
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--ephyr-text-dim);
+  text-decoration: none;
+}
+
+.hero-stats {
+  font-size: 0.85rem;
+  color: var(--ephyr-text-dim);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+
+.hero-stats .sep {
+  margin: 0 0.5rem;
+  opacity: 0.4;
+}
+
+/* Sections */
+.section {
+  padding: 5rem 1.5rem;
+}
+
+.section-alt {
+  background: var(--ephyr-bg-alt);
+}
+
+.section-inner {
+  max-width: 56rem;
+  margin: 0 auto;
+}
+
+.section h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.section-lead {
+  font-size: 1.1rem;
+  color: var(--ephyr-text-dim);
+  margin-bottom: 2.5rem;
+  max-width: 40rem;
+}
+
+/* Problem cards */
+.problem-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.problem-card {
+  background: var(--ephyr-surface);
+  border: 1px solid var(--ephyr-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.problem-card h3 {
+  font-size: 1.05rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.problem-card p {
+  font-size: 0.92rem;
+  color: var(--ephyr-text-dim);
+  line-height: 1.6;
+}
+
+/* Architecture diagram */
+.arch-diagram {
+  margin-top: 2rem;
+  overflow-x: auto;
+}
+
+.arch-diagram pre {
+  background: var(--ephyr-code-bg) !important;
+  border: 1px solid var(--ephyr-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--ephyr-text);
+}
+
+/* Features grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.feature {
+  padding: 1.5rem;
+  background: var(--ephyr-surface);
+  border: 1px solid var(--ephyr-border);
+  border-radius: 8px;
+}
+
+.feature h3 {
+  font-size: 1.05rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.feature p {
+  font-size: 0.92rem;
+  color: var(--ephyr-text-dim);
+  line-height: 1.6;
+}
+
+/* Tiers */
+.tiers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.tier {
+  background: var(--ephyr-surface);
+  border: 1px solid var(--ephyr-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.tier-label {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ephyr-accent);
+  background: rgba(96, 165, 250, 0.1);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.tier h3 {
+  font-size: 1.1rem;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.tier-version {
+  font-size: 0.8rem;
+  color: var(--ephyr-text-dim);
+  font-family: monospace;
+  margin-bottom: 0.75rem;
+}
+
+.tier p {
+  font-size: 0.9rem;
+  color: var(--ephyr-text-dim);
+  line-height: 1.6;
+}
+
+.tier-note {
+  font-size: 0.82rem !important;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* Performance */
+.perf-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.perf-item {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  background: var(--ephyr-surface);
+  border: 1px solid var(--ephyr-border);
+  border-radius: 8px;
+}
+
+.perf-value {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ephyr-accent);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  margin-bottom: 0.5rem;
+}
+
+.perf-label {
+  font-size: 0.82rem;
+  color: var(--ephyr-text-dim);
+}
+
+/* Tools */
+.tools-columns {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.tools-group {
+  background: var(--ephyr-surface);
+  border: 1px solid var(--ephyr-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.tools-group h4 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ephyr-accent);
+  margin-bottom: 0.75rem;
+}
+
+.tools-group ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tools-group li {
+  font-size: 0.9rem;
+  color: var(--ephyr-text-dim);
+  padding: 0.3rem 0;
+  line-height: 1.5;
+}
+
+.tools-group code {
+  font-size: 0.85rem;
+  color: var(--ephyr-accent);
+  background: rgba(96, 165, 250, 0.08);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+}
+
+/* CTA */
+.cta-section {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.cta-section h2 {
+  font-size: 1.6rem;
+}
+
+.cta-section p {
+  color: var(--ephyr-text-dim);
+  max-width: 36rem;
+  margin: 0.5rem auto 2rem;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 2.5rem;
+  }
+
+  .tagline {
+    font-size: 1.2rem;
+  }
+
+  .hero-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .hero-stats .sep {
+    display: none;
+  }
+
+  .problem-grid,
+  .features-grid,
+  .tiers-grid,
+  .perf-grid,
+  .tools-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .arch-diagram pre {
+    font-size: 0.6rem;
+  }
+}

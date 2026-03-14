@@ -1,0 +1,28 @@
+colorScheme = "congo"
+defaultAppearance = "dark"
+autoSwitchAppearance = false
+
+enableSearch = false
+enableCodeCopy = true
+
+[homepage]
+  layout = "custom"
+  showRecent = false
+
+[article]
+  showDate = false
+  showAuthor = false
+  showBreadcrumbs = false
+  showTableOfContents = true
+  showPagination = false
+
+[header]
+  layout = "basic"
+
+[footer]
+  showCopyright = true
+  showThemeAttribution = false
+  showAppearanceSwitcher = false
+
+[list]
+  showBreadcrumbs = false

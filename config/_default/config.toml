@@ -1,0 +1,13 @@
+baseURL = "https://ephyr.ai/"
+languageCode = "en"
+title = "Ephyr"
+theme = "congo"
+
+[taxonomies]
+  tag = "tags"
+
+[sitemap]
+  changefreq = "weekly"
+  priority = 0.5
+
+enableRobotsTXT = true
