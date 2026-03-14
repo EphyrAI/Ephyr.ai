@@ -1,6 +1,6 @@
 [[main]]
-  name = "Whitepaper"
-  pageRef = "whitepaper"
+  name = "Whitepapers"
+  pageRef = "whitepapers"
   weight = 5
 
 [[main]]

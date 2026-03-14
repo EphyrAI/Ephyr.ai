@@ -6,9 +6,11 @@ weight: 30
 
 ## Requirements
 
-- Go 1.24+
-- Linux with systemd
-- SSH server on target hosts configured to trust the Ephyr CA
+- **Go 1.24+** -- uses enhanced routing patterns and recent stdlib features
+- **Linux** -- `SO_PEERCRED` for Unix socket peer authentication is Linux-specific
+- **systemd** -- optional but recommended for production
+- **OpenSSH** -- target hosts need `TrustedUserCAKeys` configured
+- **nftables** -- recommended for network isolation
 
 ## Build
 
@@ -94,21 +96,35 @@ Add to your MCP configuration:
 }
 ```
 
+Works with Claude Code, Claude Desktop, Cursor, Cline, OpenClaw, and any MCP-compatible client.
+
 ### CLI
 
 ```bash
-ephyr targets              # List available SSH targets
+ephyr targets                  # List available SSH targets
 ephyr exec webserver \
   --role read \
-  -- systemctl status nginx  # Run a command
+  -- systemctl status nginx    # Run a command
 
-ephyr session create       # Open persistent session (faster)
-ephyr services             # List HTTP proxy services
-ephyr remotes              # List federated MCP servers
+ephyr session create           # Open persistent session (60x faster)
+ephyr services                 # List HTTP proxy services
+ephyr remotes                  # List federated MCP servers
+ephyr inspect <token>          # Inspect macaroon caveats
+```
+
+## Testing
+
+253+ tests across 13+ test files:
+
+```bash
+make test                      # Unit tests
+make lint                      # golangci-lint
+go test ./test/integration/    # Integration tests (requires running instance)
 ```
 
 ## What's Next
 
-- [How It Works](/docs/how-it-works/) — understand the access model
-- [Architecture](/docs/architecture/) — security model and process isolation
-- [GitHub](https://github.com/EphyrAI/Ephyr) — source code and issues
+- [How It Works](/docs/how-it-works/) -- understand the access model
+- [Architecture](/docs/architecture/) -- security model and process isolation
+- [Whitepapers](/whitepapers/architecture/) -- full architecture specification
+- [GitHub](https://github.com/EphyrAI/Ephyr) -- source code, issues, and documentation

@@ -287,6 +287,168 @@ body {
   letter-spacing: 0.02em;
 }
 
+/* Whitepaper row (2 smaller cards) */
+.whitepaper-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.whitepaper-card-sm {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  text-decoration: none !important;
+  padding: 1.25rem;
+  border-radius: 10px;
+  border: 1px solid var(--ephyr-border);
+  background: var(--ephyr-surface);
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+
+.whitepaper-card-sm:hover {
+  border-color: var(--ephyr-accent-dim);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(96, 165, 250, 0.06);
+}
+
+.wp-doc-sm {
+  flex-shrink: 0;
+  width: 70px;
+  height: 90px;
+}
+
+.wp-doc-inner-sm {
+  width: 100%;
+  height: 100%;
+  background: #1a1a2e;
+  border: 1px solid #2a2a44;
+  border-radius: 3px 8px 3px 3px;
+  padding: 0.75rem 0.6rem;
+  position: relative;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+}
+
+.wp-doc-inner-sm::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(225deg, var(--ephyr-surface) 50%, #2a2a44 50%);
+}
+
+.wp-doc-inner-sm .wp-doc-bar {
+  width: 1.5rem;
+  height: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.wp-doc-title-sm {
+  font-size: 0.48rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.4rem;
+}
+
+.wp-doc-lines-sm {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wp-doc-lines-sm .wp-line {
+  height: 1.5px;
+}
+
+.wp-info-sm {
+  flex: 1;
+}
+
+.wp-info-sm .wp-badge {
+  font-size: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.wp-info-sm h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.4rem;
+}
+
+.wp-info-sm p {
+  font-size: 0.82rem;
+  color: var(--ephyr-text-dim);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.wp-info-sm .wp-read-link {
+  font-size: 0.82rem;
+}
+
+/* Dual process cards */
+.dual-process {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.process-card {
+  background: var(--ephyr-surface);
+  border: 1px solid var(--ephyr-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.process-card h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ephyr-accent);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  margin-bottom: 0.5rem;
+}
+
+.process-card p {
+  font-size: 0.88rem;
+  color: var(--ephyr-text-dim);
+  line-height: 1.6;
+}
+
+.process-card code {
+  font-size: 0.8rem;
+  color: var(--ephyr-accent);
+  background: rgba(96, 165, 250, 0.08);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+}
+
+/* Tier caveat (honest limitations) */
+.tier-caveat {
+  font-size: 0.78rem !important;
+  color: var(--ephyr-text-dim);
+  opacity: 0.7;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Subtle link in hero */
+.subtle-link {
+  color: var(--ephyr-accent) !important;
+  text-decoration: underline;
+  text-decoration-color: rgba(96, 165, 250, 0.3);
+  text-underline-offset: 2px;
+}
+
+.subtle-link:hover {
+  text-decoration-color: var(--ephyr-accent);
+}
+
 /* Whitepaper page header */
 .whitepaper-header {
   border-bottom: 1px solid var(--ephyr-border);
@@ -513,6 +675,16 @@ body {
     height: 165px;
   }
 
+  .whitepaper-row {
+    grid-template-columns: 1fr;
+  }
+
+  .whitepaper-card-sm {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .dual-process,
   .problem-grid,
   .features-grid,
   .tiers-grid {
@@ -521,6 +693,10 @@ body {
 
   .perf-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tools-columns {
+    grid-template-columns: 1fr;
   }
 
   .hero-cta {

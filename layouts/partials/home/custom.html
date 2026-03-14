@@ -5,8 +5,8 @@
     <div class="hero-content">
       <p class="pronunciation">pronounced "eh&#8209;feer"</p>
       <h1>Ephyr</h1>
-      <p class="tagline">Cryptographically bounded agent authority with centralized audit.</p>
-      <p class="subtitle">The first open-source implementation of the Delegation Capability Token architecture from DeepMind's "Intelligent AI Delegation" framework.</p>
+      <p class="tagline">Cryptographically bounded agent authority<br>with centralized audit.</p>
+      <p class="subtitle">The first open-source implementation of the <a href="https://arxiv.org/abs/2602.11865" class="subtle-link">Delegation Capability Token</a> architecture from Google DeepMind's "Intelligent AI Delegation" framework.</p>
       <div class="hero-cta">
         <a href="{{ "docs/getting-started/" | relURL }}" class="btn-primary">Get Started</a>
         <a href="https://github.com/EphyrAI/Ephyr" class="btn-secondary">View Source</a>
@@ -14,17 +14,17 @@
     </div>
   </section>
 
-  <!-- Whitepaper -->
-  <section class="section" id="whitepaper">
+  <!-- Whitepapers -->
+  <section class="section" id="whitepapers">
     <div class="section-inner">
       <div class="whitepaper-showcase">
-        <a href="{{ "whitepaper/" | relURL }}" class="whitepaper-card">
+        <a href="{{ "whitepapers/architecture/" | relURL }}" class="whitepaper-card">
           <div class="wp-doc">
             <div class="wp-doc-inner">
               <div class="wp-doc-bar"></div>
-              <div class="wp-doc-title">Ephyr Architecture</div>
-              <div class="wp-doc-subtitle">Ephemeral infrastructure access for AI agents</div>
-              <div class="wp-doc-meta">Ben Spanswick &middot; March 2026</div>
+              <div class="wp-doc-title">System Architecture</div>
+              <div class="wp-doc-subtitle">Broker internals, MCP server, policy engine, dashboard</div>
+              <div class="wp-doc-meta">v0.2 &middot; March 2026</div>
               <div class="wp-doc-lines">
                 <div class="wp-line wp-line-full"></div>
                 <div class="wp-line wp-line-full"></div>
@@ -34,21 +34,56 @@
                 <div class="wp-line wp-line-full"></div>
                 <div class="wp-line wp-line-full"></div>
                 <div class="wp-line wp-line-med"></div>
-                <div class="wp-line wp-line-gap"></div>
-                <div class="wp-line wp-line-heading"></div>
-                <div class="wp-line wp-line-full"></div>
-                <div class="wp-line wp-line-full"></div>
-                <div class="wp-line wp-line-short"></div>
               </div>
             </div>
           </div>
           <div class="wp-info">
-            <span class="wp-badge">Architecture Spec</span>
-            <h2>Read the whitepaper</h2>
-            <p>Three capability tiers. Macaroon-based delegation with cryptographic attenuation. Proof-of-possession holder binding. How Ephyr implements DeepMind's Delegation Capability Token architecture.</p>
-            <span class="wp-read-link">Read now &rarr;</span>
+            <span class="wp-badge">Architecture</span>
+            <h3>Ephyr Architecture Whitepaper</h3>
+            <p>Dual-process design, MCP server implementation, HTTP proxy engine, federation, policy engine, task identity, dashboard, metrics, and deployment topology.</p>
+            <span class="wp-read-link">Read &rarr;</span>
           </div>
         </a>
+        <div class="whitepaper-row">
+          <a href="{{ "whitepapers/security/" | relURL }}" class="whitepaper-card-sm">
+            <div class="wp-doc-sm">
+              <div class="wp-doc-inner-sm">
+                <div class="wp-doc-bar"></div>
+                <div class="wp-doc-title-sm">Security Model</div>
+                <div class="wp-doc-lines-sm">
+                  <div class="wp-line wp-line-full"></div>
+                  <div class="wp-line wp-line-short"></div>
+                  <div class="wp-line wp-line-full"></div>
+                </div>
+              </div>
+            </div>
+            <div class="wp-info-sm">
+              <span class="wp-badge">Security</span>
+              <h4>Security Whitepaper</h4>
+              <p>Trust model, authentication layers, cryptographic choices, network isolation, hardening guide. 14 enumerated threats with mitigations.</p>
+              <span class="wp-read-link">Read &rarr;</span>
+            </div>
+          </a>
+          <a href="{{ "whitepapers/task-identity/" | relURL }}" class="whitepaper-card-sm">
+            <div class="wp-doc-sm">
+              <div class="wp-doc-inner-sm">
+                <div class="wp-doc-bar"></div>
+                <div class="wp-doc-title-sm">Task Identity</div>
+                <div class="wp-doc-lines-sm">
+                  <div class="wp-line wp-line-full"></div>
+                  <div class="wp-line wp-line-short"></div>
+                  <div class="wp-line wp-line-full"></div>
+                </div>
+              </div>
+            </div>
+            <div class="wp-info-sm">
+              <span class="wp-badge">Identity</span>
+              <h4>Task-Scoped Portable Identity</h4>
+              <p>Why task runs&mdash;not service accounts&mdash;should be the unit of agent identity. CTT-E tokens, capability envelopes, epoch watermarks.</p>
+              <span class="wp-read-link">Read &rarr;</span>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -57,46 +92,61 @@
   <section class="section section-alt" id="problem">
     <div class="section-inner">
       <h2>The Problem</h2>
+      <p class="section-lead">MCP gives agents tools. It doesn't govern what happens when agents delegate to sub-agents, when permissions need to attenuate, or when actions need to trace back to the task that initiated them.</p>
       <div class="problem-grid">
         <div class="problem-card">
-          <h3>Credentials don't expire</h3>
-          <p>SSH keys and API tokens persist long after the task that needed them. When an agent session ends, the access remains. No per-task scoping, no post-session cleanup.</p>
+          <h3>Static credentials are a liability</h3>
+          <p>SSH keys don't expire. API tokens can't be scoped per-task. When an agent session ends, the access remains. Rotation is manual and error-prone.</p>
         </div>
         <div class="problem-card">
-          <h3>MCP has no delegation model</h3>
-          <p>MCP provides tools to agents but doesn't govern sub-agent delegation, permission attenuation across chains, or action correlation to originating tasks.</p>
+          <h3>No delegation model</h3>
+          <p>When agent A delegates to B, and B delegates to C&mdash;who authorized C to do what? MCP has no policy layer for permission propagation across delegation chains.</p>
         </div>
         <div class="problem-card">
           <h3>Authority can't be proven</h3>
-          <p>When agent A delegates to B, and B delegates to C&mdash;who authorized C to do what, and can you prove the authority only narrowed?</p>
+          <p>Can you prove the authority only narrowed? Without cryptographic caveat accumulation and deterministic reduction, the answer is no.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Architecture -->
+  <!-- What Ephyr Does -->
   <section class="section" id="solution">
     <div class="section-inner">
       <h2>What Ephyr Does</h2>
-      <p class="section-lead">A dual-process broker between AI agents and your infrastructure. One MCP endpoint. Three access paths. Zero standing credentials.</p>
+      <p class="section-lead">An access broker between AI agents and infrastructure. One MCP endpoint replaces scattered credentials with policy-governed, ephemeral, SIEM-ready access.</p>
       <div class="arch-diagram">
-        <pre><code>┌──────────────┐                ┌──────────────────┐                ┌──────────────────┐
-│              │   MCP :8554    │                  │   Unix socket  │                  │
-│  AI Agent    ├───────────────▶│   ephyr-broker   ├───────────────▶│   ephyr-signer   │
-│              │                │                  │                │                  │
-│  Claude      │                │  Policy engine   │                │  CA key holder   │
-│  Cursor      │                │  Task identity   │                │  Signs certs     │
-│  Any MCP     │                │  HTTP proxy      │                │  Never on network│
-│  client      │                │  MCP federation  │                │  Systemd sandbox │
-│              │                │  Audit logger    │                │                  │
-└──────────────┘                └────────┬─────────┘                └──────────────────┘
-                                         │
-                          ┌──────────────┼──────────────┐
-                          ▼              ▼              ▼
-                    ┌──────────┐  ┌──────────┐  ┌──────────┐
-                    │ SSH hosts│  │ HTTP APIs│  │ MCP      │
-                    │          │  │          │  │ servers  │
-                    └──────────┘  └──────────┘  └──────────┘</code></pre>
+        <pre><code>Agent (MCP client)
+    │
+    │ Bearer: mac_&lt;base64url macaroon&gt;
+    │
+    ▼
+┌──────────────────┐           ┌──────────────────┐
+│  ephyr-broker    │  IPC      │  ephyr-signer    │
+│                  ├──────────▶│                  │
+│  Policy engine   │           │  CA key custody  │
+│  Macaroon verify │           │  SSH cert signing│
+│  HMAC reducer    │           │  Never on network│
+│  Audit logger    │           └──────────────────┘
+│  HTTP proxy      │
+│  MCP federation  │
+│  Task identity   │
+└────┬───────┬─────┘
+     │       │
+  SSH certs  HTTP proxy    MCP federation
+     │       │                  │
+     ▼       ▼                  ▼
+  Targets  Services       Remote MCP servers</code></pre>
+      </div>
+      <div class="dual-process">
+        <div class="process-card">
+          <h4>ephyr-signer</h4>
+          <p>Holds the Ed25519 CA private key in a systemd sandbox. <code>ProtectSystem=strict</code>, <code>MemoryDenyWriteExecute</code>, zero capabilities. Unix socket IPC only. The CA key never leaves this process, never touches the network.</p>
+        </div>
+        <div class="process-card">
+          <h4>ephyr-broker</h4>
+          <p>HMAC chain verification, caveat reduction, policy evaluation, SSH certificate requests, HTTP proxy with credential injection, MCP federation, task tree management, structured audit, admin dashboard.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -107,64 +157,105 @@
       <h2>How It Works</h2>
       <div class="features-grid">
         <div class="feature">
-          <h3>Brokered Access</h3>
-          <p>One MCP connection replaces N different auth mechanisms. The broker injects credentials per-request. Agents never see long-lived secrets.</p>
+          <h3>HMAC-Chained Macaroons</h3>
+          <p>Task tokens use HMAC-SHA256 caveat chains. Restriction removal is cryptographically impossible. The effective envelope reducer derives the most-restrictive authority using set intersection, minimums, and boolean AND.</p>
         </div>
         <div class="feature">
-          <h3>Ephemeral Certificates</h3>
-          <p>SSH certificates default to 5-minute TTL. Issued per-request by an isolated CA signer process. No key distribution, no revocation lists.</p>
+          <h3>Ephemeral SSH Certificates</h3>
+          <p>Ed25519 certificates with 5-minute default TTL. Per-request issuance by the isolated signer. Persistent sessions reduce latency from ~850ms to ~14ms&mdash;60x faster for sequential commands.</p>
         </div>
         <div class="feature">
           <h3>Task-Scoped Identity</h3>
-          <p>Every action correlates to a task with a ULID. Capability envelopes define what each task can touch. Epoch watermarking enables instant revocation without blocklists.</p>
+          <p>Every action correlates to a task run with a ULID. Capability envelopes bound what a token can do. Epoch watermark revocation invalidates entire task trees instantly&mdash;O(depth), no blocklists.</p>
         </div>
         <div class="feature">
-          <h3>Delegation with Attenuation</h3>
-          <p>Parent tasks delegate to children with reduced scope. Macaroon-based tokens with HMAC-chained caveats make restriction removal cryptographically impossible. Capabilities only shrink.</p>
+          <h3>Broker-Mediated Delegation</h3>
+          <p>Parent tasks delegate to children with attenuated scope. Cross-agent delegation supported. The child gets the intersection of parent ceiling and child policy. Max depth 5. No offline delegation.</p>
         </div>
         <div class="feature">
           <h3>Policy &amp; RBAC</h3>
-          <p>Declarative YAML with hot-reload. Eight-step evaluation pipeline. Fine-grained per-agent RBAC across SSH, HTTP, and MCP federation with template inheritance and wildcard support.</p>
+          <p>Declarative YAML, hot-reload via SIGHUP. Eight-step evaluation pipeline. Per-agent RBAC across SSH, HTTP, and MCP federation with template inheritance and wildcard support. Every denial includes a reason.</p>
         </div>
         <div class="feature">
-          <h3>Full Audit Trail</h3>
-          <p>Every certificate, command, HTTP proxy request, delegation, and denied action. Structured JSON with task lineage correlation. Every denial includes a specific reason.</p>
+          <h3>Three Proxy Paths</h3>
+          <p>SSH certificates, HTTP APIs with credential injection (bearer, basic, header, query param), and federated MCP servers with automatic discovery. Agents connect once; the broker handles everything.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MCP -->
+  <section class="section" id="mcp">
+    <div class="section-inner">
+      <h2>15 MCP Tools &middot; 7 Resource URIs</h2>
+      <p class="section-lead">JSON-RPC 2.0 over Streamable HTTP, implementing MCP 2025-03-26. Works with Claude Code, Claude Desktop, Cursor, Cline, and any MCP client.</p>
+      <div class="tools-columns">
+        <div class="tools-group">
+          <h4>Infrastructure</h4>
+          <ul>
+            <li><code>exec</code> &mdash; Run commands via ephemeral SSH cert</li>
+            <li><code>session_create</code> / <code>session_close</code> &mdash; Persistent sessions</li>
+            <li><code>list_targets</code> / <code>list_sessions</code> / <code>list_certs</code></li>
+          </ul>
+        </div>
+        <div class="tools-group">
+          <h4>HTTP Proxy</h4>
+          <ul>
+            <li><code>http_request</code> &mdash; Authenticated proxy (credentials auto-injected)</li>
+            <li><code>list_services</code></li>
+          </ul>
+        </div>
+        <div class="tools-group">
+          <h4>Task Identity &amp; Delegation</h4>
+          <ul>
+            <li><code>task_create</code> / <code>task_delegate</code> &mdash; Scoped tasks with attenuation</li>
+            <li><code>task_info</code> / <code>task_list</code> / <code>task_revoke</code></li>
+          </ul>
+        </div>
+        <div class="tools-group">
+          <h4>Resources (Self-Discovery)</h4>
+          <ul>
+            <li><code>ephyr://overview</code> &mdash; System summary + permissions</li>
+            <li><code>ephyr://targets</code> / <code>ephyr://services</code> / <code>ephyr://roles</code></li>
+            <li><code>ephyr://status</code> / <code>ephyr://tools</code> / <code>ephyr://remotes</code></li>
+          </ul>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Tiers -->
-  <section class="section" id="tiers">
+  <section class="section section-alt" id="tiers">
     <div class="section-inner">
       <h2>Capability Tiers</h2>
-      <p class="section-lead">Ephyr evolves through three tiers. Each is a strict superset of the previous.</p>
+      <p class="section-lead">Each tier is a strict superset of the previous.</p>
       <div class="tiers-grid">
         <div class="tier">
-          <div class="tier-label">Shipping</div>
+          <div class="tier-label">Shipped</div>
           <h3>Ephyr Core</h3>
           <p class="tier-version">v0.1 &ndash; v0.2a</p>
-          <p>Brokered access, ephemeral credentials, task-scoped identity, declarative policy, epoch watermark revocation, full audit trail.</p>
+          <p>Brokered access, ephemeral credentials, task-scoped identity with ULID correlation, declarative policy with hot-reload, RBAC, epoch watermark revocation, structured audit trail.</p>
+          <p class="tier-caveat">Does not enforce command-level filtering (delegated to host shell + sudoers) or push certificate revocation to hosts.</p>
         </div>
         <div class="tier">
-          <div class="tier-label">Shipping</div>
+          <div class="tier-label">Shipped</div>
           <h3>Ephyr Delegation</h3>
           <p class="tier-version">v0.2b</p>
-          <p>Macaroon-based task tokens, broker-mediated delegation, effective envelope reducer, cross-agent delegation, lineage-aware audit.</p>
-          <p class="tier-note">Implements DeepMind's "Intelligent AI Delegation" architecture (arXiv:2602.11865).</p>
+          <p>Pure-stdlib macaroon engine (HMAC-SHA256). Fuzz-tested reducer (220k executions). Broker-mediated delegation with cryptographic caveat accumulation. Cross-agent delegation. <code>ephyr inspect</code> CLI.</p>
+          <p class="tier-caveat">Bearer tokens. A leaked macaroon can be used until TTL/watermark. Holder binding is Ephyr Bind.</p>
         </div>
         <div class="tier">
           <div class="tier-label">Next</div>
           <h3>Ephyr Bind</h3>
           <p class="tier-version">v0.3</p>
-          <p>Holder-bound tokens with DPoP-style proof-of-possession. Ephemeral keypair per task. Leaked macaroons are useless without the key.</p>
+          <p>DPoP-style proof-of-possession. Ephemeral Ed25519 keypair per task. Leaked macaroons are useless without the corresponding private key. No mTLS infrastructure required.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Performance + Stats -->
-  <section class="section section-alt" id="performance">
+  <!-- Numbers -->
+  <section class="section" id="performance">
     <div class="section-inner">
       <h2>By the Numbers</h2>
       <div class="perf-grid">
@@ -173,49 +264,74 @@
           <span class="perf-label">Warm auth (187x over cold)</span>
         </div>
         <div class="perf-item">
-          <span class="perf-value">14ms</span>
-          <span class="perf-label">SSH exec (persistent session)</span>
-        </div>
-        <div class="perf-item">
           <span class="perf-value">~32&micro;s</span>
           <span class="perf-label">Macaroon verify</span>
         </div>
         <div class="perf-item">
-          <span class="perf-value">~34&micro;s</span>
-          <span class="perf-label">Macaroon mint</span>
+          <span class="perf-value">14ms</span>
+          <span class="perf-label">SSH exec (persistent session)</span>
         </div>
         <div class="perf-item">
-          <span class="perf-value">15</span>
-          <span class="perf-label">MCP tools + 7 resource URIs</span>
+          <span class="perf-value">60x</span>
+          <span class="perf-label">Session speedup</span>
         </div>
         <div class="perf-item">
-          <span class="perf-value">4</span>
+          <span class="perf-value">~24k</span>
+          <span class="perf-label">Lines of Go</span>
+        </div>
+        <div class="perf-item">
+          <span class="perf-value">253+</span>
+          <span class="perf-label">Tests (unit + integration)</span>
+        </div>
+        <div class="perf-item">
+          <span class="perf-value">3</span>
           <span class="perf-label">Dependencies</span>
         </div>
         <div class="perf-item">
           <span class="perf-value">0</span>
           <span class="perf-label">External databases</span>
         </div>
-        <div class="perf-item">
-          <span class="perf-value">60x</span>
-          <span class="perf-label">Session speedup over cold exec</span>
+      </div>
+      <p class="perf-footnote">Benchmarked on Debian 12 LXC, 1 vCPU, 512MB RAM. Macaroon implementation is pure stdlib (HMAC-SHA256 from crypto/hmac).</p>
+    </div>
+  </section>
+
+  <!-- Security -->
+  <section class="section section-alt" id="security">
+    <div class="section-inner">
+      <h2>Security Model</h2>
+      <div class="features-grid">
+        <div class="feature">
+          <h3>Defense in Depth</h3>
+          <p>Five authentication layers: SO_PEERCRED (kernel-verified UID), 256-bit session tokens, constant-time dashboard auth, bcrypt API keys, and Ed25519 SSH certificates.</p>
+        </div>
+        <div class="feature">
+          <h3>CA Key Isolation</h3>
+          <p>The CA private key exists only in the signer process. Systemd sandbox with <code>ProtectSystem=strict</code>, <code>MemoryDenyWriteExecute</code>, and zero capabilities. Never on the network.</p>
+        </div>
+        <div class="feature">
+          <h3>Network Isolation</h3>
+          <p>nftables UID-based rules block direct agent-to-backend traffic. All access routes through the broker. CIDR allow/deny policy for HTTP proxy destinations.</p>
+        </div>
+        <div class="feature">
+          <h3>14 Enumerated Threats</h3>
+          <p>Documented threat model covering broker compromise, agent takeover, token leakage, network attacks, and more. Each threat has explicit mitigations and residual risk assessment.</p>
         </div>
       </div>
-      <p class="perf-footnote">Benchmarked on Debian 12 LXC, 1 vCPU, 512MB RAM.</p>
     </div>
   </section>
 
   <!-- CTA -->
   <section class="section" id="cta">
     <div class="section-inner cta-section">
-      <h2>Built for homelabs and internal teams.</h2>
-      <p>Designed for environments where you trust the operator but need to control what agents can do. Not a SaaS platform. Not a managed service. Your infrastructure, your policy, your audit trail.</p>
+      <h2>Built for homelabs and internal engineering teams.</h2>
+      <p>Designed for environments where you trust the operator but need to control what agents can do. Not multi-tenant. Not a managed service. Your infrastructure, your policy, your audit trail.</p>
       <div class="hero-cta">
         <a href="{{ "docs/getting-started/" | relURL }}" class="btn-primary">Get Started</a>
-        <a href="{{ "whitepaper/" | relURL }}" class="btn-secondary">Read the Whitepaper</a>
+        <a href="{{ "whitepapers/architecture/" | relURL }}" class="btn-secondary">Read the Whitepapers</a>
         <a href="https://github.com/EphyrAI/Ephyr" class="btn-secondary">GitHub</a>
       </div>
-      <p class="cta-license">Apache 2.0 &middot; Go 1.24+ &middot; Linux</p>
+      <p class="cta-license">Apache 2.0 &middot; Go 1.24+ &middot; Linux &middot; 3 dependencies &middot; Zero external databases</p>
     </div>
   </section>
 
