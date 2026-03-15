@@ -8,11 +8,15 @@ weight: 10
 
 Ephyr is an access broker. It sits between AI agents and infrastructure, replacing scattered credentials with a single MCP endpoint that enforces policy, issues ephemeral certificates, and produces structured audit logs. Every action is scoped to a task, time-bounded, and cryptographically traceable through the delegation chain.
 
-## Dual-Process Architecture
+## Three-Process Architecture
+
+Ephyr runs as three isolated processes with strict privilege separation.
 
 **ephyr-signer** holds the Ed25519 CA private key in a systemd sandbox with `ProtectSystem=strict`, `MemoryDenyWriteExecute`, and zero capabilities. Unix socket IPC only. The CA key never leaves this process, never touches the network.
 
 **ephyr-broker** handles everything else: HMAC chain verification, caveat reduction, policy evaluation, SSH certificate requests via signer IPC, HTTP proxy with credential injection, MCP federation, task tree management, structured audit logging, and the admin dashboard.
+
+**ephyr** (CLI) is the agent-side tool for direct operations from the broker host. Includes `ephyr inspect` for examining macaroon caveats.
 
 The signer issues delegation certificates to the broker. The broker signs task tokens locally with its delegation key -- no IPC round-trip per token. Delegation keys auto-rotate before expiry.
 

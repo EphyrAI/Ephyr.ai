@@ -1,6 +1,6 @@
 ---
 title: "Architecture"
-description: "Ephyr's dual-process architecture and security model"
+description: "Ephyr's three-process architecture and security model"
 weight: 20
 ---
 
