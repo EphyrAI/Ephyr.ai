@@ -231,23 +231,15 @@
       <p class="section-lead">Each tier is a strict superset of the previous.</p>
       <div class="tiers-grid">
         <div class="tier">
-          <div class="tier-label">Shipped</div>
           <h3>Ephyr Core</h3>
-          <p class="tier-version">v0.1 &ndash; v0.2a</p>
           <p>Brokered access, ephemeral credentials, task-scoped identity with ULID correlation, declarative policy with hot-reload, RBAC, epoch watermark revocation, structured audit trail.</p>
-          <p class="tier-caveat">Does not enforce command-level filtering (delegated to host shell + sudoers) or push certificate revocation to hosts.</p>
         </div>
         <div class="tier">
-          <div class="tier-label">Shipped</div>
           <h3>Ephyr Delegation</h3>
-          <p class="tier-version">v0.2b</p>
           <p>Pure-stdlib macaroon engine (HMAC-SHA256). Fuzz-tested reducer (220k executions). Broker-mediated delegation with cryptographic caveat accumulation. Cross-agent delegation. <code>ephyr inspect</code> CLI.</p>
-          <p class="tier-caveat">Bearer tokens. A leaked macaroon can be used until TTL/watermark. Holder binding is Ephyr Bind.</p>
         </div>
         <div class="tier">
-          <div class="tier-label">Next</div>
           <h3>Ephyr Bind</h3>
-          <p class="tier-version">v0.3</p>
           <p>DPoP-style proof-of-possession. Ephemeral Ed25519 keypair per task. Leaked macaroons are useless without the corresponding private key. No mTLS infrastructure required.</p>
         </div>
       </div>
