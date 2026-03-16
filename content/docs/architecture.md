@@ -52,7 +52,7 @@ Handles everything else:
 
 ### ephyr (CLI)
 
-Agent-side tool for direct operations. Includes `ephyr inspect` for examining macaroon caveats.
+Agent-side tool for direct operations. Commands: `ephyr inspect` (examine macaroon caveats), `ephyr monitor` (live broker activity), `ephyr demo` (demonstration mode), `ephyr host-key` (SSH host key management).
 
 ## Trust Model
 
@@ -92,13 +92,15 @@ Delegation certificates expire on a short cycle (default 1 hour). Broker comprom
 | Delegation limits | Max depth 5, envelope intersection, TTL constraint |
 | Audit trail | JSON-line structured logging with ULID correlation |
 | Network isolation | nftables UID-based rules, CIDR allow/deny |
+| Command/request filtering | Deny/allow patterns on SSH, HTTP, and MCP paths with auto-revoke |
+| Holder binding | PoP verification enforced in auth hot path (Ephyr Bind v0.3) |
+| Host key verification | Per-target SSH host key pinning (T6 mitigated) |
+| TLS verification | Per-service TLS CA configuration (T7 mitigated) |
 
 ### What Ephyr does NOT enforce
 
-- **Command filtering** -- the target host (shell restrictions, sudoers, filesystem permissions) is the enforcement layer
 - **OS-level isolation** -- SELinux, AppArmor, filesystem permissions are outside scope
 - **Push revocation to hosts** -- OpenSSH doesn't support online CRL for user certificates; TTL is the mitigation
-- **Holder binding** -- task tokens are bearer tokens until Ephyr Bind ships
 - **Multi-tenant isolation** -- single policy file, single CA; deploy separate instances for tenant boundaries
 
 ### Threat Model

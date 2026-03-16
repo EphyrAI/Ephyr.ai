@@ -8,7 +8,7 @@ layout: "simple"
 
 **Secure Infrastructure Access for AI Agents**
 
-Version 0.2 | March 2026
+Version 0.3 | March 2026
 
 ---
 
@@ -137,7 +137,7 @@ connections, and injects credentials on the agent's behalf.
 | **Unforgeable identity** | SO_PEERCRED kernel verification for co-located agents |
 | **Zero credential exposure** | HTTP proxy injects credentials invisibly; agents cannot extract tokens |
 | **Task-scoped audit** | Every operation tied to a ULID-identified task with hierarchical lineage |
-| **Minimal dependencies** | 22,832 lines of Go; 3 external libraries (gorilla/websocket, x/crypto, yaml.v3) |
+| **Minimal dependencies** | ~24,000 lines of Go; 3 external libraries (gorilla/websocket, x/crypto, yaml.v3) |
 
 ### Intended Audience
 
@@ -950,11 +950,10 @@ issuance time. Every brokered request must satisfy both the capability
 envelope AND the policy engine -- the envelope is a pre-check that runs
 before full policy evaluation.
 
-**Subset enforcement:** When delegation tokens (CTT-D, planned for
-Phase 2b) are introduced, child tokens must have envelopes that are
-strict subsets of their parent's envelope. The `IsSubsetOf()` method
-validates this at issuance time, ensuring that delegation never
-amplifies privileges.
+**Subset enforcement:** Delegation tokens (CTT-D, shipped in v0.2b as
+macaroon-based tokens) require child envelopes to be strict subsets of
+their parent's envelope. The `IsSubsetOf()` method validates this at
+issuance time, ensuring that delegation never amplifies privileges.
 
 ### 6.5 Wildcard Resolution
 
@@ -1651,16 +1650,15 @@ Ordered by impact:
    dedicated VM or LXC container with no other workloads. This ensures
    systemd sandboxing is the primary isolation layer, not one among many.
 
-2. **Enable host key verification.** The default SSH client uses
-   `InsecureIgnoreHostKey`. Until host key pinning is implemented in
-   policy, ensure the network path between the broker and all targets
-   is trusted (same VLAN, no untrusted L2 neighbors). This is the
-   highest-priority item to address.
+2. **Configure host key pinning.** Set the `host_key` field per target
+   in policy.yaml. Use `ephyr host-key` to retrieve and pin host key
+   fingerprints. Without pinning, SSH connections fall back to
+   trust-on-first-use.
 
-3. **Enable TLS verification for services.** The HTTP proxy uses
-   `InsecureSkipVerify: true`. Deploy proper TLS certificates or a
-   private CA for internal services. Place a TLS-terminating reverse
-   proxy in front of the dashboard and MCP ports.
+3. **Configure TLS verification for services.** Set per-service TLS CA
+   configuration in `services.json` to pin certificates for internal
+   services. Place a TLS-terminating reverse proxy in front of the
+   dashboard and MCP ports.
 
 **High:**
 
@@ -1858,14 +1856,17 @@ It cannot issue X.509 client certificates for mTLS workflows. Workloads
 requiring X.509 identity should use SPIFFE/SPIRE or a traditional PKI
 alongside Ephyr.
 
-**SSH host key verification disabled.** The broker's SSH client uses
-`InsecureIgnoreHostKey`, making SSH connections vulnerable to
-man-in-the-middle attacks. This is the most significant known security
-gap (see Threat T6 in the threat model).
+**SSH host key verification.** The broker supports per-target host key
+pinning via the `host_key` field in policy.yaml. When configured, the
+broker verifies the target's SSH host key against the pinned fingerprint
+during every connection. Mismatches are rejected and logged as a critical
+audit event. Targets without a pinned host key fall back to trust-on-first-use.
+The `ephyr host-key` CLI command assists with host key management (T6 mitigated).
 
-**TLS certificate verification disabled.** The HTTP proxy and MCP
-federation client use `InsecureSkipVerify: true`, making HTTPS
-connections vulnerable to interception (see Threat T7).
+**TLS certificate verification.** The HTTP proxy supports per-service TLS
+CA configuration via `services.json`, allowing operators to pin a CA
+certificate or specific server certificate for each backend service. Services
+without explicit TLS configuration use the system CA pool (T7 mitigated).
 
 **Credentials stored in plaintext.** Service credentials
 (`/var/lib/ephyr/services.json`) and federated MCP server credentials
@@ -1884,12 +1885,22 @@ remains valid on the target until its TTL expires.
 (mTLS, OIDC) is supported on the MCP TCP endpoint. A stolen API key
 grants full access for the impersonated agent's policy scope.
 
-### 14.2 Planned Improvements
+### 14.2 Shipped and Planned Improvements
+
+**Shipped:**
+
+| Improvement | Addresses | Status |
+|-------------|-----------|--------|
+| SSH host key pinning in policy.yaml | T6 (SSH MITM) | Shipped (v0.3) |
+| Per-service TLS CA configuration | T7 (HTTPS MITM) | Shipped (v0.3) |
+| CTT-D delegation tokens (macaroons) | Subtask delegation | Shipped (v0.2b) |
+| Command/request filtering (SSH/HTTP/MCP) | Defense-in-depth | Shipped (v0.3+) |
+| Holder binding with PoP | Token theft resistance | Shipped (v0.3) |
+
+**Planned:**
 
 | Improvement | Addresses | Priority |
 |-------------|-----------|----------|
-| SSH host key pinning in policy.yaml | T6 (SSH MITM) | Critical |
-| Per-service TLS CA configuration | T7 (HTTPS MITM) | High |
 | Credential encryption at rest | T10 (plaintext creds) | High |
 | mTLS client certificates for MCP | T1 (API key theft) | Medium |
 | OIDC/JWT authentication option | T1 (API key theft) | Medium |
@@ -1897,7 +1908,6 @@ grants full access for the impersonated agent's policy scope.
 | Log entry signing (HMAC/Ed25519) | T11 (log tampering) | Medium |
 | WebSocket message-based auth | T9 (dashboard token leak) | Medium |
 | Per-agent rate limiting on MCP TCP | T12 (DoS) | Medium |
-| CTT-D delegation tokens (Phase 2b) | Subtask delegation | Low |
 | `RevokedKeys` file distribution | T5 (target-side revocation) | Low |
 
 ### 14.3 Research Directions
@@ -1997,8 +2007,8 @@ at startup without it ever existing in a regular file.
 | T3 | Broker compromise | Critical | B2 | Mitigated (CA key isolated in signer); residual (service creds exposed) |
 | T4 | Signer compromise (CA key theft) | Critical | B1 | Mitigated (systemd sandbox, no network); residual (root host access) |
 | T5 | Target compromise via active session | Medium | B3 | Mitigated (5-min TTL); residual (no push revocation) |
-| T6 | SSH man-in-the-middle | Critical | B3 | **OPEN** -- `InsecureIgnoreHostKey` |
-| T7 | HTTPS man-in-the-middle | High | B4/B5 | **OPEN** -- `InsecureSkipVerify: true` |
+| T6 | SSH man-in-the-middle | Critical | B3 | Mitigated (per-target host key pinning in policy.yaml) |
+| T7 | HTTPS man-in-the-middle | High | B4/B5 | Mitigated (per-service TLS CA configuration) |
 | T8 | Network bypass (agent direct access) | Medium | B0 | Mitigated (nftables UID rules for co-located agents) |
 | T9 | Dashboard token leakage | Medium | B5 | Partially mitigated (constant-time compare, privacy mode) |
 | T10 | Credential exposure at rest | High | -- | Partially mitigated (file permissions); residual (plaintext JSON) |
@@ -2010,10 +2020,10 @@ at startup without it ever existing in a regular file.
 ## 17. Appendix C: Dependency Analysis
 
 Ephyr maintains a minimal dependency footprint. The entire project
-(22,832 lines of Go) depends on only three external libraries:
+(~24,000 lines of Go) depends on only three external libraries:
 
 ```
-module github.com/ben-spanswick/ephyr
+module github.com/EphyrAI/Ephyr
 
 go 1.24.1
 
@@ -2042,7 +2052,7 @@ require golang.org/x/sys v0.41.0 // indirect
 - Cloud provider SDKs
 
 This minimal dependency surface significantly reduces supply chain risk.
-The project can be audited by reading approximately 23,000 lines of Go
+The project can be audited by reading approximately 24,000 lines of Go
 plus the four dependencies listed above.
 
 ---
@@ -2052,10 +2062,10 @@ plus the four dependencies listed above.
 | Field | Value |
 |-------|-------|
 | Project | Ephyr -- Secure Agent Access Broker |
-| Version | 0.2 |
-| Codebase | ~22,832 lines of Go |
+| Version | 0.3 |
+| Codebase | ~24,000 lines of Go |
 | License | Apache 2.0 |
-| Repository | https://github.com/ben-spanswick/ephyr |
+| Repository | https://github.com/EphyrAI/Ephyr |
 | Last Updated | March 2026 |
 | Classification | Public |
 

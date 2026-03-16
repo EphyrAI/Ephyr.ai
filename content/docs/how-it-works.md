@@ -16,7 +16,7 @@ Ephyr runs as three isolated processes with strict privilege separation.
 
 **ephyr-broker** handles everything else: HMAC chain verification, caveat reduction, policy evaluation, SSH certificate requests via signer IPC, HTTP proxy with credential injection, MCP federation, task tree management, structured audit logging, and the admin dashboard.
 
-**ephyr** (CLI) is the agent-side tool for direct operations from the broker host. Includes `ephyr inspect` for examining macaroon caveats.
+**ephyr** (CLI) is the agent-side tool for direct operations from the broker host. Commands: `ephyr inspect` (examine macaroon caveats), `ephyr monitor` (live broker activity), `ephyr demo` (demonstration mode), `ephyr host-key` (SSH host key management).
 
 The signer issues delegation certificates to the broker. The broker signs task tokens locally with its delegation key -- no IPC round-trip per token. Delegation keys auto-rotate before expiry.
 
@@ -89,6 +89,21 @@ Seven resource URIs enable agent self-discovery without tool calls:
 | `ephyr://status` | Active certificates, sessions, recent activity |
 | `ephyr://tools` | Tool reference with parameters and usage examples |
 | `ephyr://remotes` | Federated MCP servers with tools and status |
+
+## Holder Binding (Ephyr Bind)
+
+Task tokens are bearer by default. Ephyr Bind (v0.3) adds opt-in holder binding: tasks created with `holder_pub_key` or bound via `task_bind` require proof-of-possession (Ed25519 signature over nonce, timestamp, body hash, and macaroon digest) on every request. PoP verification is enforced in the broker auth hot path. Leaked macaroons are useless without the corresponding private key. No mTLS infrastructure required. Full PoP pipeline completes in ~132us.
+
+## Command and Request Filtering
+
+Opt-in defense-in-depth filtering across all three proxy paths:
+
+- **SSH command filtering** -- deny/allow patterns checked before the SSH connection is established. No certificate is issued for blocked commands.
+- **HTTP proxy filtering** -- URL path and request body patterns checked before the request is sent.
+- **MCP federation filtering** -- serialized tool arguments checked against deny patterns before forwarding.
+- **Auto-revoke** -- optionally suspend agent access on violation, requiring human re-enablement from the dashboard.
+
+Zero overhead when disabled (~3.9ns). Not a security boundary -- commands can be obfuscated. The real enforcement is host-level controls. Filtering catches the obvious cases and provides an audit trail.
 
 ## Audit
 

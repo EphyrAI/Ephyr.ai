@@ -24,7 +24,7 @@
               <div class="wp-doc-bar"></div>
               <div class="wp-doc-title">System Architecture</div>
               <div class="wp-doc-subtitle">Broker internals, MCP server, policy engine, dashboard</div>
-              <div class="wp-doc-meta">v0.2 &middot; March 2026</div>
+              <div class="wp-doc-meta">v0.3 &middot; March 2026</div>
               <div class="wp-doc-lines">
                 <div class="wp-line wp-line-full"></div>
                 <div class="wp-line wp-line-full"></div>
@@ -209,6 +209,7 @@
           <h4>Task Identity &amp; Delegation</h4>
           <ul>
             <li><code>task_create</code> / <code>task_delegate</code> &mdash; Scoped tasks with attenuation</li>
+            <li><code>task_bind</code> &mdash; Holder binding with proof-of-possession</li>
             <li><code>task_info</code> / <code>task_list</code> / <code>task_revoke</code></li>
           </ul>
         </div>
@@ -240,7 +241,7 @@
         </div>
         <div class="tier">
           <h3>Ephyr Bind</h3>
-          <p>DPoP-style proof-of-possession. Ephemeral Ed25519 keypair per task. Leaked macaroons are useless without the corresponding private key. No mTLS infrastructure required.</p>
+          <p>DPoP-style proof-of-possession enforced in the auth hot path. Ephemeral Ed25519 keypair per task. Leaked macaroons are useless without the corresponding private key. No mTLS infrastructure required. ~132us full PoP pipeline.</p>
         </div>
       </div>
     </div>
@@ -256,8 +257,20 @@
           <span class="perf-label">Warm auth (187x over cold)</span>
         </div>
         <div class="perf-item">
+          <span class="perf-value">~34&micro;s</span>
+          <span class="perf-label">Macaroon mint</span>
+        </div>
+        <div class="perf-item">
           <span class="perf-value">~32&micro;s</span>
           <span class="perf-label">Macaroon verify</span>
+        </div>
+        <div class="perf-item">
+          <span class="perf-value">~132&micro;s</span>
+          <span class="perf-label">PoP pipeline (full)</span>
+        </div>
+        <div class="perf-item">
+          <span class="perf-value">~6&micro;s</span>
+          <span class="perf-label">Envelope reducer</span>
         </div>
         <div class="perf-item">
           <span class="perf-value">14ms</span>
@@ -307,7 +320,11 @@
         </div>
         <div class="feature">
           <h3>14 Enumerated Threats</h3>
-          <p>Documented threat model covering broker compromise, agent takeover, token leakage, network attacks, and more. Each threat has explicit mitigations and residual risk assessment.</p>
+          <p>Documented threat model covering broker compromise, agent takeover, token leakage, network attacks, and more. Each threat has explicit mitigations and residual risk assessment. T6 (SSH MITM) mitigated via host key pinning. T7 (TLS MITM) mitigated via per-service TLS config.</p>
+        </div>
+        <div class="feature">
+          <h3>Command/Request Filtering</h3>
+          <p>Opt-in deny/allow patterns on SSH commands, HTTP proxy requests, and MCP federation calls. Auto-revoke on violation suspends agent access. Defense-in-depth layer with zero overhead when disabled (~3.9ns).</p>
         </div>
       </div>
     </div>

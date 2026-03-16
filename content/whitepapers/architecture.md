@@ -6,9 +6,9 @@ layout: "simple"
 
 # Ephyr Architecture Whitepaper
 
-**Version:** 0.2
-**Date:** 2026-03-13
-**Codebase:** ~23,000 lines Go, 3 direct dependencies
+**Version:** 0.3
+**Date:** 2026-03-15
+**Codebase:** ~24,000 lines Go, 3 direct dependencies
 
 ---
 
@@ -541,7 +541,7 @@ Client                                          Server
 
 ### 4.2 Tool Inventory
 
-Ephyr exposes 15 tools (9 core + 5 task identity + federated):
+Ephyr exposes 15 tools (9 core + 6 task identity + federated):
 
 | Tool            | Category   | Description                                 |
 |-----------------|------------|---------------------------------------------|
@@ -559,6 +559,7 @@ Ephyr exposes 15 tools (9 core + 5 task identity + federated):
 | `task_info`     | Identity   | Get task information and envelope (v0.2)     |
 | `task_revoke`   | Identity   | Revoke task and cascade to children (v0.2)   |
 | `task_list`     | Identity   | List active tasks for agent (v0.2)           |
+| `task_bind`     | Identity   | Bind task token to holder key for PoP (v0.3) |
 | `<remote>.<tool>` | Federated | Namespaced tools from remote MCP servers   |
 
 ### 4.3 Resource Inventory
@@ -1296,7 +1297,7 @@ Wildcard resolution happens once at issuance. This ensures:
 - Adding a new target after token issuance does not expand the token
 - Envelope subset checks are straightforward list comparisons
 
-The `IsSubsetOf` method enables future delegation: a child task's
+The `IsSubsetOf` method enforces delegation (shipped v0.2b): a child task's
 envelope must be a subset of its parent's envelope.
 
 ### 8.8 Revocation Model
@@ -1442,20 +1443,25 @@ Event format:
 
 ### 9.3 Dashboard Views
 
-The dashboard provides 10 views across 4 groups:
+The dashboard provides 11 views across 4 groups, with 5 themes (dark, light, cyberpunk, slate, corporate):
 
 | Group            | View           | Description                           |
 |------------------|----------------|---------------------------------------|
 | OVERVIEW         | Overview       | Stat cards, host/service/MCP panels,  |
-|                  |                | active sessions, live event feed      |
+|                  |                | active sessions, health metrics strip,|
+|                  |                | live event feed                       |
 | INFRASTRUCTURE   | Hosts          | SSH targets with enable/disable toggle|
 |                  | Services       | HTTP proxy services with toggle       |
 |                  | MCP Servers    | Federated remotes with toggle         |
 | MONITOR          | Agents         | Per-agent stats and permissions       |
 |                  | Activity       | Searchable activity log               |
-|                  | Sessions       | Active SSH sessions                   |
-|                  | Audit Log      | Structured audit events               |
-| TOOLS            | Terminal       | (Reserved for future terminal access) |
+|                  | Sessions       | Active SSH sessions (suspended shown  |
+|                  |                | with amber pulsing indicator)         |
+|                  | Audit Log      | Structured audit events with exec     |
+|                  |                | timings breakdown                     |
+|                  | Tasks          | Table/tree view, envelope inspector,  |
+|                  |                | cascade revocation                    |
+| TOOLS            | Terminal       | WebSocket SSH proxy terminal          |
 |                  | Settings       | Configuration management              |
 
 ### 9.4 Toggle Operations
@@ -2111,8 +2117,8 @@ agents with appropriate RBAC permissions will see the new target via
 |                   | SSH certificates and delegation certs                |
 | CTT-E             | Ephyr Task Token - Execution: a JWT authorizing     |
 |                   | a specific task's operations                         |
-| CTT-D             | Ephyr Task Token - Delegation: (Phase 2b) a JWT     |
-|                   | allowing a task to create sub-tasks                  |
+| CTT-D             | Ephyr Task Token - Delegation: a macaroon-based     |
+|                   | token allowing a task to create sub-tasks (v0.2b)   |
 | Delegation Cert   | A certificate from the signer authorizing the broker  |
 |                   | to sign CTT tokens with an ephemeral key             |
 | Envelope          | Capability bounds for a task: targets, roles,         |

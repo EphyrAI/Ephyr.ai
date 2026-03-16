@@ -12,7 +12,18 @@ weight: 30
 - **OpenSSH** -- target hosts need `TrustedUserCAKeys` configured
 - **nftables** -- recommended for network isolation
 
-## Build
+## Quick Start with Docker
+
+```bash
+git clone https://github.com/EphyrAI/Ephyr.git
+cd Ephyr
+./examples/generate-ca-key.sh
+docker compose up --build -d
+```
+
+Dashboard at `http://localhost:8553` (token: `changeme`). Edit `examples/policy.yaml` to add your targets.
+
+## Build from Source
 
 ```bash
 git clone https://github.com/EphyrAI/Ephyr.git
@@ -20,6 +31,16 @@ cd Ephyr
 make build
 # Output: bin/ephyr-broker  bin/ephyr-signer  bin/ephyr
 ```
+
+## One-Command Setup
+
+```bash
+sudo make setup
+# Builds, installs, creates user, generates CA key, writes example policy,
+# installs systemd units, and starts services.
+```
+
+Customize with: `sudo make setup DASHBOARD_TOKEN=mysecret MCP_PORT=9000 DASHBOARD_PORT=9001`
 
 ## Generate CA Key
 
@@ -110,6 +131,9 @@ ephyr session create           # Open persistent session (60x faster)
 ephyr services                 # List HTTP proxy services
 ephyr remotes                  # List federated MCP servers
 ephyr inspect <token>          # Inspect macaroon caveats
+ephyr monitor                  # Live broker activity monitoring
+ephyr demo                     # Demonstration mode
+ephyr host-key                 # SSH host key management
 ```
 
 ## Testing

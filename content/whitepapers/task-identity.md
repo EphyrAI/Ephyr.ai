@@ -361,7 +361,7 @@ A CTT-E token is three Base64url-encoded segments separated by dots:
 | Field | Type   | Description                                           |
 |-------|--------|-------------------------------------------------------|
 | `alg` | string | Always `EdDSA` (Ed25519). No algorithm negotiation.   |
-| `typ` | string | `CTT-E` for execution tokens, `CTT-D` for delegation (Phase 2b). |
+| `typ` | string | `CTT-E` for execution tokens, `CTT-D` for delegation (shipped v0.2b). |
 | `kid` | string | Delegation certificate ID. Links the token to the signing key's delegation cert, which chains to the root CA. |
 
 **Algorithm fixed at EdDSA.** There is no algorithm negotiation. The
@@ -577,7 +577,7 @@ Examples:
 ephyr:oidc:google:user@example.com   -- OIDC identity (future)
 ephyr:spiffe:cluster-a:workload-id   -- SPIFFE identity (future)
 ephyr:mtls:cn:agent-prod-01          -- mTLS client cert (future)
-ephyr:task:01JQKX...:delegated       -- Parent task delegation (Phase 2b)
+ephyr:task:01JQKX...:delegated       -- Parent task delegation (shipped v0.2b)
 ```
 
 **Policy matching:** The URN format enables policy rules like "only allow
@@ -786,7 +786,7 @@ runtime cost is negligible compared to the network operations they gate.
 
 ### 8.4 Subset Validation for Delegation
 
-When a parent task delegates to a child (Phase 2b), the child's envelope
+When a parent task delegates to a child (shipped v0.2b), the child's envelope
 must be a subset of the parent's:
 
 ```go
@@ -1207,7 +1207,7 @@ Identity Documents). SPIRE is the reference implementation.
 | Trust model | Hierarchical CAs with attestation | Three-tier delegation (root -> broker -> token) |
 | Revocation | CRL/OCSP, TTL-based | Epoch watermarks with lineage walk |
 | Capability bounding | Not built-in (relies on external policy) | Embedded capability envelopes |
-| Delegation | Nested trust domains | Monotonic envelope attenuation (Phase 2b) |
+| Delegation | Nested trust domains | Monotonic envelope attenuation (shipped v0.2b) |
 | Task hierarchy | No concept of parent-child tasks | Lineage array, cascading revocation |
 | Audit correlation | By workload identity | By task ID, root ID, and lineage |
 | Dependencies | SPIRE server, attestors, workload API | Single Go binary, no external deps |
@@ -1232,7 +1232,7 @@ service authentication.
 | Token format | JWT or opaque | CTT-E (JWT + EdDSA) |
 | Scoping | OAuth scopes (string labels) | Capability envelopes (targets, roles, services, methods, remotes) |
 | Revocation | Token introspection endpoint or JTI blocklist | Epoch watermarks |
-| Delegation | No native support | Monotonic attenuation (Phase 2b) |
+| Delegation | No native support | Monotonic attenuation (shipped v0.2b) |
 | Task hierarchy | None | Lineage array |
 | Token lifetime | Minutes to hours | Minutes (max 1h) |
 | Dependencies | Authorization server (Keycloak, Auth0, etc.) | Built-in to broker |
@@ -1254,7 +1254,7 @@ by deleting the key.
 | Identity granularity | Key holder (agent or operator) | Task |
 | Scoping | Key-level (all or nothing) | Per-task envelope |
 | Revocation | Delete key (kills all tasks) | Watermark (kills one task) |
-| Delegation | Not possible | Monotonic attenuation (Phase 2b) |
+| Delegation | Not possible | Monotonic attenuation (shipped v0.2b) |
 | Audit | By key fingerprint | By task ID and lineage |
 | Rotation cost | Re-authenticate all clients | Transparent (delegation rotation) |
 
@@ -1273,7 +1273,7 @@ Web-style session tokens (e.g., signed cookies, Redis-backed sessions).
 | Identity granularity | Session (user login) | Task |
 | Scoping | Session-level roles | Per-task envelope |
 | Revocation | Delete from session store | Epoch watermark (no central store) |
-| Delegation | Not designed for it | Monotonic attenuation (Phase 2b) |
+| Delegation | Not designed for it | Monotonic attenuation (shipped v0.2b) |
 | Hierarchy | Flat | Lineage tree |
 | Stateless validation | No (requires session store lookup) | Yes (cryptographic validation only) |
 
@@ -1292,12 +1292,12 @@ Capability envelope    -       ~       -        -       Y
 Cascading revocation   -       -       -        -       Y
 Targeted revocation    -       ~       Y        ~       Y
 Lineage tracking       -       -       -        -       Y
-Monotonic attenuation  -       -       -        ~       Y*
+Monotonic attenuation  -       -       -        ~       Y
 Stateless validation   Y       ~       -        Y       Y
 Zero external deps     Y       -       -        -       Y
 Audit correlation      -       ~       ~        ~       Y
 
-Y = yes, ~ = partial, - = no, * = Phase 2b
+Y = yes, ~ = partial, - = no
 ```
 
 ---
@@ -1306,17 +1306,17 @@ Y = yes, ~ = partial, - = no, * = Phase 2b
 
 ### 13.1 Phase 2b: Delegation Tokens (CTT-D)
 
-**Status:** Implemented in v0.3.0 (2026-03-13).
+**Status:** Shipped (v0.2b). All task tokens are now macaroons with
+HMAC-SHA256 caveat chains. JWTs replaced entirely for task identity.
 
-Phase 2b implements CTT-D (Ephyr Task Token -- Delegation), enabling
+Phase 2b implements delegation via macaroon-based tokens, enabling
 parent tasks to spawn child tasks with attenuated capabilities via the
-`task_delegate` MCP tool. The broker's `SignCTTD()` issues delegation
-tokens, `Validate()` verifies them, and `CreateChildTask()` enforces
+`task_delegate` MCP tool. The broker's macaroon engine issues delegation
+tokens with additional caveats, verifies HMAC chains, and enforces
 envelope attenuation through `IsSubsetOf()`. Delegation depth is capped
 at 5 (`DefaultMaxChildDepth` constant). Cascading revocation invalidates
 entire subtrees by lineage walk. The implementation includes a
-`TokensDelegated` Prometheus counter for observability, and is covered
-by 13 unit tests and 7 integration tests.
+`TokensDelegated` Prometheus counter for observability.
 
 **Key design decisions:**
 
@@ -1348,18 +1348,16 @@ Child Task (depth=1, envelope={targets: [A]}, parent_id=parent.id)
 
 ### 13.2 Phase 2c: Dashboard Task Views
 
-**Status:** Designed, not yet implemented.
+**Status:** Shipped.
 
-The Ephyr dashboard will receive task-specific views:
+The Ephyr dashboard includes task-specific views:
 
 - **Task Tree:** Visual hierarchy of active tasks, their lineage, and
-  envelope summaries.
-- **Task Timeline:** Gantt-style view of task lifetimes, overlaid with
-  action events.
-- **Revocation Controls:** One-click task revocation from the dashboard,
-  with cascading impact preview.
+  envelope summaries (table and tree view).
 - **Envelope Inspector:** Drill into a task's capability envelope and see
-  which permissions are actually used vs. granted.
+  which permissions are granted.
+- **Revocation Controls:** One-click task revocation from the dashboard,
+  with cascading revocation to all children.
 
 ### 13.3 Phase 3: Federated Task Identity
 
@@ -1378,18 +1376,29 @@ across federation boundaries:
 This enables a multi-Ephyr topology where each instance manages its own
 hosts but tasks can span instances.
 
-### 13.4 Future Considerations
+### 13.4 Shipped Since This Whitepaper
 
-- **Macaroon-based tokens:** If third-party attenuation is needed (e.g.,
-  an external policy service adding constraints to tokens), macaroons may
-  replace or complement JWT-based CTT tokens.
+- **Macaroon-based tokens (v0.2b):** All task tokens are now macaroons
+  with HMAC-SHA256 caveat chains. Pure stdlib implementation with no
+  external macaroon library. JWTs replaced entirely for task identity.
+- **Holder binding (v0.3):** DPoP-style proof-of-possession. Tasks
+  bound via `task_bind` require Ed25519 signature proof on every request.
+  PoP verification enforced in the broker auth hot path. ~132us full
+  pipeline.
+- **Command/request filtering (v0.3+):** Deny/allow patterns on SSH,
+  HTTP, and MCP paths with auto-revoke on violation.
+- **Metrics integration:** Task metrics already shipped in Prometheus
+  endpoint (tasks created, active tasks, tokens signed/rejected/delegated,
+  watermark revocations).
+
+### 13.5 Future Considerations
+
 - **Hardware-backed key custody:** The signer's root key could be stored
   in a TPM or HSM for hardware-level protection.
-- **Token binding:** Bind tokens to a specific TLS connection or IP
-  address to prevent token theft.
-- **Metrics integration:** Push task metrics to Prometheus/Grafana for
-  alerting on anomalous task patterns (e.g., unexpected delegation depth,
-  high revocation rate).
+- **`require_pop` policy option:** Per-agent policy to mandate holder
+  binding on all tasks.
+- **Federated task identity:** Task identity flowing across Ephyr
+  instances via federation boundaries.
 
 ---
 
@@ -1439,12 +1448,14 @@ audit log shows task 01JQKX7M, initiated by ak_claude, running
 difference between "the child agent inherited everything" and "the child
 agent received exactly the subset of permissions needed for its subtask."
 
-Ephyr v0.2 is the foundation. Delegation tokens (Phase 2b) will enable
-parent-to-child spawning with monotonic attenuation. Federated task
-identity (Phase 3) will extend task scoping across Ephyr instances.
-But the core primitive -- the task as an identity unit, with a signed
-token, a bounded envelope, and a revocable lineage -- is complete and
-operational today.
+Ephyr v0.2 laid the foundation. Since this whitepaper was written,
+delegation tokens shipped (v0.2b) as macaroon-based tokens with HMAC
+caveat chains, and holder binding shipped (v0.3) with DPoP-style
+proof-of-possession enforced in the auth hot path. All three capability
+tiers -- Core, Delegation, and Bind -- are operational. The core
+primitive -- the task as an identity unit, with a cryptographically
+chained token, a bounded envelope, and a revocable lineage -- is
+complete and deployed.
 
 ---
 
@@ -1489,7 +1500,7 @@ operational today.
 }
 ```
 
-### A.3 CTT-D Header (Phase 2b)
+### A.3 CTT-D Header (shipped v0.2b)
 
 ```json
 {
