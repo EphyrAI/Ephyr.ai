@@ -13,7 +13,7 @@ Agent (MCP client)
     │
     ▼
 ┌──────────────────┐           ┌──────────────────┐
-│  ephyr-broker    │  IPC      │  ephyr-signer    │
+│  ephyr broker    │  IPC      │  ephyr signer    │
 │                  ├──────────►│                  │
 │  Policy engine   │           │  CA key custody  │
 │  Macaroon verify │           │  SSH cert signing│
@@ -30,13 +30,13 @@ Agent (MCP client)
   Targets  Services       Remote MCP servers
 ```
 
-### ephyr-signer
+### ephyr signer
 
 Holds the Ed25519 CA private key. Unix socket IPC. Systemd sandbox with `ProtectSystem=strict`, `MemoryDenyWriteExecute`, zero capabilities. Never touches the network.
 
 Its jobs: sign SSH certificates and issue delegation certificates to the broker.
 
-### ephyr-broker
+### ephyr broker
 
 Handles everything else:
 
@@ -50,9 +50,9 @@ Handles everything else:
 - **Audit logging** -- structured JSON-line output with ULID correlation
 - **Admin dashboard** -- 11-view web UI on port 8553
 
-### ephyr (CLI)
+### Single Binary
 
-Agent-side tool for direct operations. Commands: `ephyr inspect` (examine macaroon caveats), `ephyr monitor` (live broker activity), `ephyr demo` (demonstration mode), `ephyr host-key` (SSH host key management).
+All three processes are subcommands of the single `ephyr` binary. `ephyr broker` starts the broker, `ephyr signer` starts the signer, and `ephyr init` runs the interactive setup wizard. Agent-side commands include `ephyr inspect` (examine macaroon caveats), `ephyr monitor` (live broker activity), `ephyr status` (health check with optional `--restart`), `ephyr demo` (demonstration mode), `ephyr host-key` (SSH host key management), and `ephyr version`. Legacy `ephyr-broker` and `ephyr-signer` binaries are still built for backward compatibility.
 
 ## Trust Model
 
@@ -96,6 +96,7 @@ Delegation certificates expire on a short cycle (default 1 hour). Broker comprom
 | Holder binding | PoP verification enforced in auth hot path (Ephyr Bind v0.3) |
 | Host key verification | Per-target SSH host key pinning (T6 mitigated) |
 | TLS verification | Per-service TLS CA configuration (T7 mitigated) |
+| Proxy hardening | Hop-by-hop header stripping, httpoxy mitigation, redirect blocking |
 
 ### What Ephyr does NOT enforce
 

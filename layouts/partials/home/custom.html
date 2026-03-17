@@ -122,7 +122,7 @@
     │
     ▼
 ┌──────────────────┐           ┌──────────────────┐
-│  ephyr-broker    │  IPC      │  ephyr-signer    │
+│  ephyr broker    │  IPC      │  ephyr signer    │
 │                  ├──────────▶│                  │
 │  Policy engine   │           │  CA key custody  │
 │  Macaroon verify │           │  SSH cert signing│
@@ -140,11 +140,11 @@
       </div>
       <div class="dual-process">
         <div class="process-card">
-          <h4>ephyr-signer</h4>
+          <h4>ephyr signer</h4>
           <p>Holds the Ed25519 CA private key in a systemd sandbox. <code>ProtectSystem=strict</code>, <code>MemoryDenyWriteExecute</code>, zero capabilities. Unix socket IPC only. The CA key never leaves this process, never touches the network.</p>
         </div>
         <div class="process-card">
-          <h4>ephyr-broker</h4>
+          <h4>ephyr broker</h4>
           <p>HMAC chain verification, caveat reduction, policy evaluation, SSH certificate requests, HTTP proxy with credential injection, MCP federation, task tree management, structured audit, admin dashboard.</p>
         </div>
       </div>
@@ -325,6 +325,10 @@
         <div class="feature">
           <h3>Command/Request Filtering</h3>
           <p>Opt-in deny/allow patterns on SSH commands, HTTP proxy requests, and MCP federation calls. Auto-revoke on violation suspends agent access. Defense-in-depth layer with zero overhead when disabled (~3.9ns).</p>
+        </div>
+        <div class="feature">
+          <h3>Proxy Hardening</h3>
+          <p>Hop-by-hop header stripping, httpoxy mitigation (CVE-2016-5385), and redirect blocking. Prevents credential exfiltration via open redirect chains. Always active, zero configuration.</p>
         </div>
       </div>
     </div>

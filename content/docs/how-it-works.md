@@ -12,11 +12,11 @@ Ephyr is an access broker. It sits between AI agents and infrastructure, replaci
 
 Ephyr runs as three isolated processes with strict privilege separation.
 
-**ephyr-signer** holds the Ed25519 CA private key in a systemd sandbox with `ProtectSystem=strict`, `MemoryDenyWriteExecute`, and zero capabilities. Unix socket IPC only. The CA key never leaves this process, never touches the network.
+**ephyr signer** holds the Ed25519 CA private key in a systemd sandbox with `ProtectSystem=strict`, `MemoryDenyWriteExecute`, and zero capabilities. Unix socket IPC only. The CA key never leaves this process, never touches the network.
 
-**ephyr-broker** handles everything else: HMAC chain verification, caveat reduction, policy evaluation, SSH certificate requests via signer IPC, HTTP proxy with credential injection, MCP federation, task tree management, structured audit logging, and the admin dashboard.
+**ephyr broker** handles everything else: HMAC chain verification, caveat reduction, policy evaluation, SSH certificate requests via signer IPC, HTTP proxy with credential injection, MCP federation, task tree management, structured audit logging, and the admin dashboard.
 
-**ephyr** (CLI) is the agent-side tool for direct operations from the broker host. Commands: `ephyr inspect` (examine macaroon caveats), `ephyr monitor` (live broker activity), `ephyr demo` (demonstration mode), `ephyr host-key` (SSH host key management).
+**ephyr** is a single binary with all subcommands: `ephyr broker` and `ephyr signer` start the servers, `ephyr init` runs the setup wizard, and agent-side commands include `ephyr inspect` (examine macaroon caveats), `ephyr monitor` (live broker activity), `ephyr status` (health check with optional `--restart`), `ephyr demo` (demonstration mode), `ephyr host-key` (SSH host key management), and `ephyr version`.
 
 The signer issues delegation certificates to the broker. The broker signs task tokens locally with its delegation key -- no IPC round-trip per token. Delegation keys auto-rotate before expiry.
 
@@ -104,6 +104,16 @@ Opt-in defense-in-depth filtering across all three proxy paths:
 - **Auto-revoke** -- optionally suspend agent access on violation, requiring human re-enablement from the dashboard.
 
 Zero overhead when disabled (~3.9ns). Not a security boundary -- commands can be obfuscated. The real enforcement is host-level controls. Filtering catches the obvious cases and provides an audit trail.
+
+## Proxy Hardening
+
+The HTTP proxy applies defense-in-depth hardening to all outbound requests:
+
+- **Hop-by-hop header stripping** -- removes `Connection`, `Proxy-Authorization`, `TE`, and other hop-by-hop headers that should not transit proxies.
+- **httpoxy mitigation** -- strips the `Proxy` header from inbound requests to prevent CGI/WSGI `HTTP_PROXY` environment variable injection (CVE-2016-5385 and related).
+- **Redirect blocking** -- the proxy does not follow redirects. Open redirect chains cannot be used to exfiltrate injected credentials to attacker-controlled endpoints.
+
+These mitigations are always active and cannot be disabled.
 
 ## Audit
 

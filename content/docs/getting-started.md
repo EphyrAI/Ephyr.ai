@@ -12,7 +12,7 @@ weight: 30
 - **OpenSSH** -- target hosts need `TrustedUserCAKeys` configured
 - **nftables** -- recommended for network isolation
 
-## Quick Start with Docker
+## Quick Start with Docker (fastest)
 
 ```bash
 git clone https://github.com/EphyrAI/Ephyr.git
@@ -23,79 +23,31 @@ docker compose up --build -d
 
 Dashboard at `http://localhost:8553` (token: `changeme`). Edit `examples/policy.yaml` to add your targets.
 
-## Build from Source
+## Native Install with `ephyr init`
+
+Ephyr ships as a single binary with all subcommands. Build it, then run the interactive setup wizard.
 
 ```bash
 git clone https://github.com/EphyrAI/Ephyr.git
-cd Ephyr
-make build
-# Output: bin/ephyr-broker  bin/ephyr-signer  bin/ephyr
+cd Ephyr && go build -o /usr/local/bin/ephyr ./cmd/ephyr
+sudo ephyr init
 ```
 
-## One-Command Setup
+`ephyr init` generates the CA key, writes an example policy, creates the system user and directories, installs systemd units, and starts both services. Output shows the dashboard URL, MCP endpoint, and demo API key.
+
+For development mode (relaxed defaults, permissive policy):
 
 ```bash
-sudo make setup
-# Builds, installs, creates user, generates CA key, writes example policy,
-# installs systemd units, and starts services.
+sudo ephyr init --dev
 ```
 
-Customize with: `sudo make setup DASHBOARD_TOKEN=mysecret MCP_PORT=9000 DASHBOARD_PORT=9001`
-
-## Generate CA Key
+Alternatively, `sudo make setup` provides the same result with Makefile-based customization:
 
 ```bash
-mkdir -p /etc/ephyr
-ssh-keygen -t ed25519 -f /etc/ephyr/ca_key -N ""
+sudo make setup DASHBOARD_TOKEN=mysecret MCP_PORT=9000 DASHBOARD_PORT=9001
 ```
 
-Deploy the public key (`/etc/ephyr/ca_key.pub`) to your target hosts:
-
-```bash
-# On each target host, add to /etc/ssh/sshd_config:
-TrustedUserCAKeys /etc/ssh/ephyr_ca.pub
-```
-
-## Configure Policy
-
-Create `/etc/ephyr/policy.yaml`:
-
-```yaml
-global:
-  max_active_certs: 10
-  default_ttl: "5m"
-  max_ttl: "30m"
-
-agents:
-  claude:
-    uid: 1000
-    max_concurrent_certs: 3
-    can_delegate: true
-
-roles:
-  read:
-    principal: "agent-read"
-  operator:
-    principal: "agent-op"
-
-targets:
-  webserver:
-    host: "10.0.1.10"
-    port: 22
-    allowed_roles: [read, operator]
-    auto_approve: true
-```
-
-## Install and Start
-
-```bash
-sudo make install-user
-sudo make install-systemd
-sudo systemctl enable --now ephyr-signer
-sudo systemctl enable --now ephyr-broker
-```
-
-Always start the signer before the broker. Both share `/run/ephyr/`.
+Requires Go 1.24+ and systemd. Edit `/etc/ephyr/policy.yaml` to add your targets.
 
 ## Connect an Agent
 
@@ -121,19 +73,30 @@ Works with Claude Code, Claude Desktop, Cursor, Cline, OpenClaw, and any MCP-com
 
 ### CLI
 
+All commands are subcommands of the single `ephyr` binary:
+
 ```bash
+# Server subcommands
+ephyr broker                   # Start the broker server
+ephyr signer                   # Start the signer server
+ephyr init [--dev]             # Interactive setup wizard
+
+# Agent subcommands
 ephyr targets                  # List available SSH targets
 ephyr exec webserver \
   --role read \
   -- systemctl status nginx    # Run a command
-
 ephyr session create           # Open persistent session (60x faster)
 ephyr services                 # List HTTP proxy services
 ephyr remotes                  # List federated MCP servers
+
+# Diagnostics
+ephyr status [--restart]       # Health check (services, sockets, endpoints)
 ephyr inspect <token>          # Inspect macaroon caveats
 ephyr monitor                  # Live broker activity monitoring
 ephyr demo                     # Demonstration mode
 ephyr host-key                 # SSH host key management
+ephyr version                  # Show version
 ```
 
 ## Testing
