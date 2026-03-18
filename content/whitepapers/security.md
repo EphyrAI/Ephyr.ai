@@ -137,7 +137,7 @@ connections, and injects credentials on the agent's behalf.
 | **Unforgeable identity** | SO_PEERCRED kernel verification for co-located agents |
 | **Zero credential exposure** | HTTP proxy injects credentials invisibly; agents cannot extract tokens |
 | **Task-scoped audit** | Every operation tied to a ULID-identified task with hierarchical lineage |
-| **Minimal dependencies** | ~24,000 lines of Go; 3 external libraries (gorilla/websocket, x/crypto, yaml.v3) |
+| **Minimal dependencies** | 3 external libraries (gorilla/websocket, x/crypto, yaml.v3); pure stdlib macaroon engine |
 
 ### Intended Audience
 
@@ -2020,7 +2020,7 @@ at startup without it ever existing in a regular file.
 ## 17. Appendix C: Dependency Analysis
 
 Ephyr maintains a minimal dependency footprint. The entire project
-(~24,000 lines of Go) depends on only three external libraries:
+depends on only three external libraries:
 
 ```
 module github.com/EphyrAI/Ephyr
@@ -2052,7 +2052,7 @@ require golang.org/x/sys v0.41.0 // indirect
 - Cloud provider SDKs
 
 This minimal dependency surface significantly reduces supply chain risk.
-The project can be audited by reading approximately 24,000 lines of Go
+The project can be audited by reading the Go source
 plus the four dependencies listed above.
 
 ---
@@ -2063,7 +2063,7 @@ plus the four dependencies listed above.
 |-------|-------|
 | Project | Ephyr -- Secure Agent Access Broker |
 | Version | 0.3 |
-| Codebase | ~24,000 lines of Go |
+| Codebase | Go, 3 external dependencies |
 | License | Apache 2.0 |
 | Repository | https://github.com/EphyrAI/Ephyr |
 | Last Updated | March 2026 |

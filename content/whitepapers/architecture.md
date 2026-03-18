@@ -8,7 +8,7 @@ layout: "simple"
 
 **Version:** 0.3
 **Date:** 2026-03-15
-**Codebase:** ~24,000 lines Go, 3 direct dependencies
+**Codebase:** Go, 3 direct dependencies, pure stdlib macaroon engine
 
 ---
 

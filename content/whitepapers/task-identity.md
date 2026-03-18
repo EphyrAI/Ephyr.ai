@@ -43,7 +43,7 @@ that carries a ULID-based task identifier, a capability envelope constraining
 what the task may do, and a lineage chain that enables hierarchical revocation
 without per-token blocklists. The system is built on a three-tier Ed25519
 trust model with delegation certificates, epoch watermark revocation, and
-monotonic capability attenuation -- all implemented in ~3,500 lines of Go with
+monotonic capability attenuation -- all implemented in Go with
 zero external cryptographic dependencies beyond the standard library. This
 paper describes the design, rationale, implementation, and measured performance
 of the task identity system, and situates it against existing approaches to
@@ -1432,7 +1432,7 @@ approaches with a mechanism designed for short-lived, hierarchical tokens:
 one map entry per revoked task (not per revoked token), O(depth) validation,
 automatic cascading, and self-cleaning GC.
 
-The implementation is ~3,500 lines of Go with zero external cryptographic
+The implementation uses zero external cryptographic
 dependencies. It is tested by 124 tests (105 unit + 19 integration) that
 verify ULID uniqueness, cascading revocation, independent task survival,
 envelope monotonicity, key rotation continuity, failure resilience, and
