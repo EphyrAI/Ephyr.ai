@@ -1,5 +1,3 @@
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({startOnLoad: true, theme: 'neutral', flowchart: {useMaxWidth: true}});</script>
 <div class="ephyr-landing">
 
   <!-- Hero -->
@@ -138,32 +136,7 @@
       <h2>What Ephyr Does</h2>
       <p class="section-lead">Three isolated processes between AI agents and infrastructure. One MCP endpoint replaces scattered credentials with policy-governed, ephemeral, SIEM-ready access.</p>
       <div class="arch-diagram" style="max-width: 800px; margin: 24px auto;">
-        <div class="mermaid">
-graph LR
-    Agent(("Agent"))
-
-    Agent -- "Bearer: mac_..." --> Broker
-
-    subgraph Broker [" ephyr broker "]
-        direction TB
-        Policy["Policy / RBAC"]
-        Macaroon["Macaroon verify + HMAC reducer"]
-        TaskID["Task identity + delegation"]
-        Audit["Audit logger"]
-        Proxy["HTTP proxy + MCP federation"]
-    end
-
-    Broker -- "Unix socket IPC" --> Signer
-
-    subgraph Signer [" ephyr signer "]
-        direction TB
-        CA["Ed25519 CA key - Never on network"]
-    end
-
-    Broker -- "SSH certs" --> T["Targets"]
-    Broker -- "Credential injection" --> S["Services"]
-    Broker -- "Proxied tool calls" --> R["Remote MCP"]
-        </div>
+        <img src="https://github.com/EphyrAI/Ephyr/releases/download/v0.3.1/ephyr-architecture.svg" alt="Ephyr Architecture" style="width: 100%; display: block; border-radius: 8px; background: white; padding: 16px;">
       </div>
       <div class="dual-process">
         <div class="process-card">
