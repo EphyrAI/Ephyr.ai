@@ -1,3 +1,5 @@
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad: true, theme: 'neutral', flowchart: {useMaxWidth: true}});</script>
 <div class="ephyr-landing">
 
   <!-- Hero -->
@@ -19,13 +21,13 @@
     <div class="section-inner">
       <div style="text-align: center; max-width: 960px; margin: 0 auto;">
         <h2 style="margin-bottom: 8px;">See It In Action</h2>
-        <p style="color: var(--color-neutral-400); margin-bottom: 24px; font-size: 1rem;">SSH execution, macaroon delegation, cascade revocation, and real-time monitoring &mdash; all through one MCP endpoint.</p>
+        <p style="color: var(--color-neutral-400); margin-bottom: 24px; font-size: 1rem;">SSH execution, macaroon delegation, cascade revocation, and real-time monitoring - all through one MCP endpoint.</p>
         <div style="border-radius: 8px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.3); margin-bottom: 24px;">
           <img src="https://github.com/EphyrAI/Ephyr/releases/download/v0.3.1/ephyr-demo.gif" alt="Ephyr Demo" style="width: 100%; display: block;">
         </div>
-        <div style="margin-top: 16px;">
+        <div style="margin-top: 16px; display: flex; flex-direction: column; align-items: center;">
           <p style="color: var(--color-neutral-400); font-size: 0.85rem; margin-bottom: 8px;">Deep Dive Podcast (generated with NotebookLM)</p>
-          <audio controls preload="none" style="width: 100%; max-width: 500px;">
+          <audio controls preload="none" style="width: 100%; max-width: 500px; display: block;">
             <source src="https://github.com/EphyrAI/Ephyr/releases/download/v0.3.1/ephyr-podcast.m4a" type="audio/mp4">
             Your browser does not support the audio element.
           </audio>
@@ -99,7 +101,7 @@
             <div class="wp-info-sm">
               <span class="wp-badge">Identity</span>
               <h4>Task-Scoped Portable Identity</h4>
-              <p>Why task runs&mdash;not service accounts&mdash;should be the unit of agent identity. CTT-E tokens, capability envelopes, epoch watermarks.</p>
+              <p>Why task runs - not service accounts - should be the unit of agent identity. CTT-E tokens, capability envelopes, epoch watermarks.</p>
               <span class="wp-read-link">Read &rarr;</span>
             </div>
           </a>
@@ -120,7 +122,7 @@
         </div>
         <div class="problem-card">
           <h3>No delegation model</h3>
-          <p>When agent A delegates to B, and B delegates to C&mdash;who authorized C to do what? MCP has no policy layer for permission propagation across delegation chains.</p>
+          <p>When agent A delegates to B, and B delegates to C - who authorized C to do what? MCP has no policy layer for permission propagation across delegation chains.</p>
         </div>
         <div class="problem-card">
           <h3>Authority can't be proven</h3>
@@ -135,28 +137,33 @@
     <div class="section-inner">
       <h2>What Ephyr Does</h2>
       <p class="section-lead">Three isolated processes between AI agents and infrastructure. One MCP endpoint replaces scattered credentials with policy-governed, ephemeral, SIEM-ready access.</p>
-      <div class="arch-diagram">
-        <pre><code>Agent (MCP client)
-    │
-    │ Bearer: mac_&lt;base64url macaroon&gt;
-    │
-    ▼
-┌──────────────────┐           ┌──────────────────┐
-│  ephyr broker    │  IPC      │  ephyr signer    │
-│                  ├──────────▶│                  │
-│  Policy engine   │           │  CA key custody  │
-│  Macaroon verify │           │  SSH cert signing│
-│  HMAC reducer    │           │  Never on network│
-│  Audit logger    │           └──────────────────┘
-│  HTTP proxy      │
-│  MCP federation  │
-│  Task identity   │
-└────┬───────┬─────┘
-     │       │
-  SSH certs  HTTP proxy    MCP federation
-     │       │                  │
-     ▼       ▼                  ▼
-  Targets  Services       Remote MCP servers</code></pre>
+      <div class="arch-diagram" style="max-width: 800px; margin: 24px auto;">
+        <div class="mermaid">
+graph LR
+    Agent(("Agent"))
+
+    Agent -- "Bearer: mac_..." --> Broker
+
+    subgraph Broker [" ephyr broker "]
+        direction TB
+        Policy["Policy / RBAC"]
+        Macaroon["Macaroon verify + HMAC reducer"]
+        TaskID["Task identity + delegation"]
+        Audit["Audit logger"]
+        Proxy["HTTP proxy + MCP federation"]
+    end
+
+    Broker -- "Unix socket IPC" --> Signer
+
+    subgraph Signer [" ephyr signer "]
+        direction TB
+        CA["Ed25519 CA key - Never on network"]
+    end
+
+    Broker -- "SSH certs" --> T["Targets"]
+    Broker -- "Credential injection" --> S["Services"]
+    Broker -- "Proxied tool calls" --> R["Remote MCP"]
+        </div>
       </div>
       <div class="dual-process">
         <div class="process-card">
@@ -182,11 +189,11 @@
         </div>
         <div class="feature">
           <h3>Ephemeral SSH Certificates</h3>
-          <p>Ed25519 certificates with 5-minute default TTL. Per-request issuance by the isolated signer. Persistent sessions reduce latency from ~850ms to ~14ms&mdash;60x faster for sequential commands.</p>
+          <p>Ed25519 certificates with 5-minute default TTL. Per-request issuance by the isolated signer. Persistent sessions reduce latency from ~850ms to ~14ms - 60x faster for sequential commands.</p>
         </div>
         <div class="feature">
           <h3>Task-Scoped Identity</h3>
-          <p>Every action correlates to a task run with a ULID. Capability envelopes bound what a token can do. Epoch watermark revocation invalidates entire task trees instantly&mdash;O(depth), no blocklists.</p>
+          <p>Every action correlates to a task run with a ULID. Capability envelopes bound what a token can do. Epoch watermark revocation invalidates entire task trees instantly - O(depth), no blocklists.</p>
         </div>
         <div class="feature">
           <h3>Broker-Mediated Delegation</h3>
@@ -213,30 +220,30 @@
         <div class="tools-group">
           <h4>Infrastructure</h4>
           <ul>
-            <li><code>exec</code> &mdash; Run commands via ephemeral SSH cert</li>
-            <li><code>session_create</code> / <code>session_close</code> &mdash; Persistent sessions</li>
+            <li><code>exec</code>  -  Run commands via ephemeral SSH cert</li>
+            <li><code>session_create</code> / <code>session_close</code>  -  Persistent sessions</li>
             <li><code>list_targets</code> / <code>list_sessions</code> / <code>list_certs</code></li>
           </ul>
         </div>
         <div class="tools-group">
           <h4>HTTP Proxy</h4>
           <ul>
-            <li><code>http_request</code> &mdash; Authenticated proxy (credentials auto-injected)</li>
+            <li><code>http_request</code>  -  Authenticated proxy (credentials auto-injected)</li>
             <li><code>list_services</code></li>
           </ul>
         </div>
         <div class="tools-group">
           <h4>Task Identity &amp; Delegation</h4>
           <ul>
-            <li><code>task_create</code> / <code>task_delegate</code> &mdash; Scoped tasks with attenuation</li>
-            <li><code>task_bind</code> &mdash; Holder binding with proof-of-possession</li>
+            <li><code>task_create</code> / <code>task_delegate</code>  -  Scoped tasks with attenuation</li>
+            <li><code>task_bind</code>  -  Holder binding with proof-of-possession</li>
             <li><code>task_info</code> / <code>task_list</code> / <code>task_revoke</code></li>
           </ul>
         </div>
         <div class="tools-group">
           <h4>Resources (Self-Discovery)</h4>
           <ul>
-            <li><code>ephyr://overview</code> &mdash; System summary + permissions</li>
+            <li><code>ephyr://overview</code>  -  System summary + permissions</li>
             <li><code>ephyr://targets</code> / <code>ephyr://services</code> / <code>ephyr://roles</code></li>
             <li><code>ephyr://status</code> / <code>ephyr://tools</code> / <code>ephyr://remotes</code></li>
           </ul>
